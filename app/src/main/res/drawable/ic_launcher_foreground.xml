@@ -7,23 +7,30 @@
 
     <!-- Download shaft -->
     <path
-        android:pathData="M54,31 L54,62"
+        android:pathData="M54,27 L54,62"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="5.5"
+        android:strokeWidth="6"
         android:strokeLineCap="round" />
 
     <!-- Download chevron -->
     <path
-        android:pathData="M41,50 L54,63 L67,50"
+        android:pathData="M38,47 L54,64 L70,47"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="5.5"
+        android:strokeWidth="6"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
 
-    <!-- Tray -->
+    <!-- Tray with a subtle Z-step notch in the rim -->
     <path
-        android:pathData="M35,72 L35,75 A5,5 0 0 0 40,80 L68,80 A5,5 0 0 0 73,75 L73,72"
+        android:pathData="M30,72 L44,72 L44,68 L64,68 L64,72 L78,72"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="5.5"
-        android:strokeLineCap="round" />
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M30,75 L30,78 Q30,84 36,84 L72,84 Q78,84 78,78 L78,75"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>

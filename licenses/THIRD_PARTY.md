@@ -1,6 +1,6 @@
 # Third-party assets
 
-SwiftDM does not include Apple assets or SF Pro font files. The interface only
+ARMz does not include Apple assets or SF Pro font files. The interface only
 follows the public Human Interface Guidelines for spacing, colour and motion.
 
 ## Inter
@@ -18,7 +18,7 @@ follows the public Human Interface Guidelines for spacing, colour and motion.
 - License: Apache License 2.0, see `MaterialSymbols-LICENSE.txt`
 - Bundled file: `material_symbols_rounded.ttf`
 - Change: static instance at weight 400, FILL 0, GRAD 0, optical size 24, then
-  subsetted to the 62 glyphs SwiftDM uses. Codepoints follow the upstream
+  subsetted to the 62 glyphs ARMz uses. Codepoints follow the upstream
   `.codepoints` metadata.
 
 Material Symbols Rounded © Google, licensed under the Apache License 2.0.

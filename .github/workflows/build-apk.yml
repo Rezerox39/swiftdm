@@ -41,11 +41,14 @@ jobs:
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
+      - name: Stage ARMz debug APK
+        run: cp app/build/outputs/apk/debug/*.apk ARMz-debug.apk
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: SwiftDM-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: ARMz-debug
+          path: ARMz-debug.apk
           retention-days: 30
           if-no-files-found: error
 
@@ -69,7 +72,7 @@ jobs:
       - name: Download debug APK
         uses: actions/download-artifact@v4
         with:
-          name: SwiftDM-debug
+          name: ARMz-debug
           path: artifacts
 
       - name: Publish GitHub release
@@ -77,17 +80,19 @@ jobs:
         with:
           files: artifacts/**/*.apk
           prerelease: true
-          name: "SwiftDM ${{ github.ref_name }} · P1 preview"
+          name: "ARMz ${{ github.ref_name }} · P2 preview"
           body: |
-            P1 preview build of SwiftDM (debug APK).
+            P2 preview build of ARMz (debug APK).
 
             Included in this build:
             - Pure-Kotlin segmented download engine: ranged requests, resume with ETag/Last-Modified
               validation, 5xx retry with exponential backoff, single-stream fallback, SHA-256 check.
             - Debug-only **Engine Lab** (Downloads → Engine Lab): URL, 1–16 segments, start, pause,
               resume, cancel, live speed/ETA and per-segment progress.
-            - Room persistence for download rows and segment checkpoints.
+            - Room persistence for download rows and diff-only segment checkpoints.
+
+            P2 adds the public storage hand-off: fast random-access `.part` downloads, coverage
+            verification, fsync, cancellable SHA-256, MediaStore pending publish to
+            `Downloads/ARMz`, and final `Completed` state only after the file is published.
 
             Install: download the APK and allow install from unknown sources when prompted.
-            Files downloaded from the lab are stored in app-private storage until the MediaStore
-            integration in P2.

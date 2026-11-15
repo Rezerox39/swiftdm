@@ -1,4 +1,4 @@
-# SwiftDM
+# ARMz
 
 [![Build APK](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml/badge.svg)](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml)
 
@@ -6,10 +6,10 @@ A native Android download manager with segmented, resumable transfers and an
 interface built around the Apple Human Interface Guidelines: large titles,
 grouped inset cards, translucent bars, spring motion and full dark mode.
 
-Kotlin · Jetpack Compose · Material 3 · Hilt · Room · DataStore · OkHttp ·
-Coroutines/Flow · Coil · Timber.
+Kotlin · Jetpack Compose · Material 3 · Hilt · Room · OkHttp ·
+Coroutines/Flow · Timber.
 
-- Package: `com.abhi.swiftdm`
+
 - minSdk 26, target/compileSdk 35
 - APKs are built on GitHub Actions, never on a developer machine
 
@@ -19,8 +19,8 @@ Coroutines/Flow · Coil · Timber.
 | --- | --- | --- |
 | P0 | Scaffold, Gradle + version catalog, manifest/permissions, Hilt, design tokens, placeholder home, CI | shipped |
 | P1 | Segmented engine: probe, split, write at offsets, retry, resume, Room, debug lab | shipped |
-| P2 | Foreground service, queue, notifications, network policy, speed limiter | planned |
-| P3 | Downloads list and Add Download sheet | planned |
+| P2 | Finalization, public `Downloads/ARMz`, real Downloads UI, splash/intro, Engine Lab diagnostics | shipped |
+| P3 | Foreground service, queue, notifications, network policy, speed limiter | planned |
 | P4 | Share/view intents, clipboard capture, per-download headers | planned |
 | P5 | Detail screen, Settings, in-app browser | planned |
 | P6 | Polish, signed release, GitHub Release | planned |
@@ -28,16 +28,16 @@ Coroutines/Flow · Coil · Timber.
 ## Install the APK
 
 1. Open the [latest release](https://github.com/Rezerox39/swiftdm/releases) and
-   download the APK attached to it, or use the **SwiftDM-debug** artifact from
+   download the APK attached to it, or use the **ARMz-debug** artifact from
    the [latest green build](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml).
-2. Install `app-debug.apk` on the phone (allow installing from this source when
+2. Install `ARMz-debug.apk` on the phone (allow installing from this source when
    Android asks).
-3. The app opens on the Downloads screen with the floating tab bar.
+3. The app opens on the Downloads screen after the short ARMz intro.
 
 The APK is debug-signed by the CI runner, so it is installable but not suitable
 for a Play Store upload. Signing for a store build arrives with P6.
 
-## Engine Lab (P1)
+## Engine Lab (P2)
 
 Debug builds expose **Downloads → Engine Lab**, a test bench for the real
 engine:
@@ -48,9 +48,10 @@ engine:
 - watch live speed, ETA, per-segment ranges and the final SHA-256.
 
 Paused transfers keep their partial bytes and resume by validating ETag /
-Last-Modified; changed content restarts from zero. Files are written to
-app-private storage until P2 moves finished downloads into the public
-Downloads collection.
+Last-Modified; changed content restarts from zero. Finished files are assembled,
+coverage-verified, fsynced, SHA-256 checked and published into the public
+`Downloads/ARMz` collection. Only after the publish succeeds does the row become
+`Completed`.
 
 The 1-vs-8-segment network benchmark runs from **Actions → Engine benchmark**,
 which prints measured MiB/s for both configurations into the workflow log.

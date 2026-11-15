@@ -36,8 +36,8 @@ jobs:
           BENCH_URL: ${{ inputs.url }}
         run: >
           ./gradlew testDebugUnitTest
-          --tests "com.abhi.swiftdm.engine.EngineBenchmarkTest"
-          -Dswiftdm.benchmarkUrl="$BENCH_URL"
+          --tests "com.abhi.armz.engine.EngineBenchmarkTest"
+          -Darmz.benchmarkUrl="$BENCH_URL"
           --stacktrace
 
       - name: Upload benchmark report

@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.abhi.swiftdm"
+    namespace = "com.abhi.armz"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.abhi.swiftdm"
+        applicationId = "com.abhi.armz"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.1.0-p1"
+        versionCode = 3
+        versionName = "0.2.0-p2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -62,6 +62,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.dynamicanimation)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -97,7 +99,7 @@ dependencies {
 // Forward the benchmark URL to JVM tests, and surface test stdout in CI so benchmark lines are
 // visible in the workflow log.
 tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
-    systemProperty("swiftdm.benchmarkUrl", System.getProperty("swiftdm.benchmarkUrl") ?: "")
+    systemProperty("armz.benchmarkUrl", System.getProperty("armz.benchmarkUrl") ?: "")
     testLogging {
         showStandardStreams = true
     }

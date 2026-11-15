@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SwiftDM"
+rootProject.name = "ARMz"
 include(":app")
