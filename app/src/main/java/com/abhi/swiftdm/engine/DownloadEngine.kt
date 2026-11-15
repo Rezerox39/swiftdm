@@ -219,8 +219,11 @@ internal class DownloadSession(
         coroutineScope {
             val telemetry = launch { telemetryLoop() }
             try {
-                repeat(request.safeSegments) {
-                    launch { workerLoop(segmentStore) }
+                // Inner scope waits for every worker; only then is telemetry stopped.
+                coroutineScope {
+                    repeat(request.safeSegments) {
+                        launch { workerLoop(segmentStore) }
+                    }
                 }
             } finally {
                 telemetry.cancel()
