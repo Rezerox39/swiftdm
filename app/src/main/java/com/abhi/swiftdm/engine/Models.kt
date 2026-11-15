@@ -132,7 +132,10 @@ sealed class EngineException(message: String, cause: Throwable? = null) : Except
         EngineException("Temporary HTTP $code for $url")
 
     class RetryExhausted(val attempts: Int, cause: Throwable?) :
-        EngineException("Giving up after $attempts attempts", cause)
+        EngineException(
+            "Giving up after $attempts attempts: ${cause?.message ?: "unknown error"}",
+            cause,
+        )
 
     class Network(cause: Throwable) : EngineException("Network error: ${cause.message}", cause)
 
