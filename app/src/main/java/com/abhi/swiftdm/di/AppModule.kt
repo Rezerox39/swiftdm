@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import timber.log.Timber
 import javax.inject.Singleton
 
 @Module
@@ -24,7 +25,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDownloadEngine(client: OkHttpClient): DownloadEngine = DownloadEngine(client)
+    fun provideDownloadEngine(client: OkHttpClient): DownloadEngine =
+        DownloadEngine(client = client, log = { message -> Timber.d("engine: %s", message) })
 
     @Provides
     @Singleton
