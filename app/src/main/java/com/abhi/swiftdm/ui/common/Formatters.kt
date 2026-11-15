@@ -5,16 +5,16 @@ import java.util.Locale
 /** Human-readable sizes and durations for the download UI. */
 object Formatters {
 
-    private val Locale = Locale.US
+    private val UsLocale = Locale.US
 
     fun bytes(value: Long): String {
         if (value < 0L) return "—"
         if (value < 1024L) return "$value B"
         val kilobytes = value / 1024.0
-        if (kilobytes < 1024.0) return String.format(Locale, "%.0f KB", kilobytes)
+        if (kilobytes < 1024.0) return String.format(UsLocale, "%.0f KB", kilobytes)
         val megabytes = kilobytes / 1024.0
-        if (megabytes < 1024.0) return String.format(Locale, "%.1f MB", megabytes)
-        return String.format(Locale, "%.2f GB", megabytes / 1024.0)
+        if (megabytes < 1024.0) return String.format(UsLocale, "%.1f MB", megabytes)
+        return String.format(UsLocale, "%.2f GB", megabytes / 1024.0)
     }
 
     fun speed(bytesPerSecond: Long): String =
@@ -32,5 +32,5 @@ object Formatters {
     }
 
     fun percent(fraction: Float): String =
-        String.format(Locale, "%.0f%%", fraction.coerceIn(0f, 1f) * 100f)
+        String.format(UsLocale, "%.0f%%", fraction.coerceIn(0f, 1f) * 100f)
 }

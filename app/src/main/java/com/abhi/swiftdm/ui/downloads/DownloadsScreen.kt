@@ -58,6 +58,7 @@ fun DownloadsScreen(
     val listState = rememberLazyListState()
     var selectedFilter by rememberSaveable { mutableStateOf(DownloadFilter.All) }
     val haptics = rememberSwiftHaptics()
+    val palette = SwiftTheme.palette
     val openEngineLab = onOpenEngineLab
     val collapsed by remember {
         derivedStateOf {

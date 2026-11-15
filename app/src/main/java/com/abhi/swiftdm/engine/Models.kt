@@ -145,13 +145,13 @@ sealed class EngineException(message: String, cause: Throwable? = null) : Except
 }
 
 fun EngineException.toEngineError(): EngineError = when (this) {
-    is EngineException.Http -> EngineError("http", message, code)
-    is EngineException.RetryableHttp -> EngineError("http", message, code)
-    is EngineException.RetryExhausted -> EngineError("retry_exhausted", message)
-    is EngineException.Network -> EngineError("network", message)
-    is EngineException.Storage -> EngineError("storage", message)
-    is EngineException.Checksum -> EngineError("checksum", message)
-    is EngineException.Unexpected -> EngineError("unexpected", message)
+    is EngineException.Http -> EngineError("http", message.orEmpty(), code)
+    is EngineException.RetryableHttp -> EngineError("http", message.orEmpty(), code)
+    is EngineException.RetryExhausted -> EngineError("retry_exhausted", message.orEmpty())
+    is EngineException.Network -> EngineError("network", message.orEmpty())
+    is EngineException.Storage -> EngineError("storage", message.orEmpty())
+    is EngineException.Checksum -> EngineError("checksum", message.orEmpty())
+    is EngineException.Unexpected -> EngineError("unexpected", message.orEmpty())
 }
 
 fun interface CheckpointSink {
