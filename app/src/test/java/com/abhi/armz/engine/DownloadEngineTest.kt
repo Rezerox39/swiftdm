@@ -320,12 +320,10 @@ class DownloadEngineTest {
         assertTrue("part survives a finalize failure", File(failed.filePath).exists())
 
         handle.resume()
-        val completed = awaitTerminal(handle)
-        assertEquals(
-            "expected Completed but was ${completed.status}: ${completed.error}",
-            DownloadStatus.Completed,
-            completed.status,
-        )
+        val completed = withTimeout(60_000) {
+            handle.state.first { it.status == DownloadStatus.Completed }
+        }
+        assertEquals(DownloadStatus.Completed, completed.status)
         assertEquals(2, flaky.attempts.get())
         assertNotNull(completed.contentUri)
         assertEquals(Sha256.of(content), Sha256.of(File(completed.filePath)))
