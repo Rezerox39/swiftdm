@@ -18,23 +18,42 @@ Coroutines/Flow · Coil · Timber.
 | Phase | Scope | State |
 | --- | --- | --- |
 | P0 | Scaffold, Gradle + version catalog, manifest/permissions, Hilt, design tokens, placeholder home, CI | shipped |
-| P1 | Segmented engine: probe, split, write at offsets, retry, resume, Room | next |
+| P1 | Segmented engine: probe, split, write at offsets, retry, resume, Room, debug lab | shipped |
 | P2 | Foreground service, queue, notifications, network policy, speed limiter | planned |
 | P3 | Downloads list and Add Download sheet | planned |
 | P4 | Share/view intents, clipboard capture, per-download headers | planned |
 | P5 | Detail screen, Settings, in-app browser | planned |
 | P6 | Polish, signed release, GitHub Release | planned |
 
-## Install the APK from CI
+## Install the APK
 
-1. Open the [latest green build](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml).
-2. Scroll to **Artifacts** and download **SwiftDM-debug**.
-3. Unzip it and install `app-debug.apk` on the phone (allow installing from
-   this source when Android asks).
-4. The app opens on the Downloads placeholder with the floating tab bar.
+1. Open the [latest release](https://github.com/Rezerox39/swiftdm/releases) and
+   download the APK attached to it, or use the **SwiftDM-debug** artifact from
+   the [latest green build](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml).
+2. Install `app-debug.apk` on the phone (allow installing from this source when
+   Android asks).
+3. The app opens on the Downloads screen with the floating tab bar.
 
 The APK is debug-signed by the CI runner, so it is installable but not suitable
-for a Play Store upload. P6 adds the signed release job.
+for a Play Store upload. Signing for a store build arrives with P6.
+
+## Engine Lab (P1)
+
+Debug builds expose **Downloads → Engine Lab**, a test bench for the real
+engine:
+
+- edit the URL (default: a 100 MB file with ETag and byte ranges),
+- choose 1–16 segments with the stepper,
+- Start / Pause / Resume / Cancel,
+- watch live speed, ETA, per-segment ranges and the final SHA-256.
+
+Paused transfers keep their partial bytes and resume by validating ETag /
+Last-Modified; changed content restarts from zero. Files are written to
+app-private storage until P2 moves finished downloads into the public
+Downloads collection.
+
+The 1-vs-8-segment network benchmark runs from **Actions → Engine benchmark**,
+which prints measured MiB/s for both configurations into the workflow log.
 
 ## Build
 
@@ -74,10 +93,17 @@ Inter and the Material Symbols subset are bundled with their licenses in
 Single `app` module, clean layering:
 
 ```
-ui/        Compose screens, components, theme, navigation
-domain/    use cases and models (P1+)
-data/      Room, DataStore, repositories (P1+)
-engine/    probe, segmenter, writer, retry, resume, service (P1+)
+ui/        Compose screens, components, theme, navigation, debug Engine Lab
+data/      Room entities/DAO/database and the DownloadRepository (P1+)
+di/        Hilt modules (OkHttp, Room, engine)
+engine/    pure-Kotlin/JVM probe, segmenter, writer, retry, resume, speed meter
+```
+
+The engine has no Android imports: it is unit-tested on the JVM with
+MockWebServer. Run the same command CI uses:
+
+```bash
+./gradlew testDebugUnitTest
 ```
 
 ## License

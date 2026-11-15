@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    name: Assemble debug APK
+    name: Test and assemble debug APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,6 +35,9 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
       - name: Assemble debug
         run: ./gradlew assembleDebug --stacktrace
 
@@ -43,3 +48,46 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
           if-no-files-found: error
+
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest
+          retention-days: 14
+          if-no-files-found: ignore
+
+  release:
+    name: Publish preview release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download debug APK
+        uses: actions/download-artifact@v4
+        with:
+          name: SwiftDM-debug
+          path: artifacts
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.apk
+          prerelease: true
+          name: "SwiftDM ${{ github.ref_name }} · P1 preview"
+          body: |
+            P1 preview build of SwiftDM (debug APK).
+
+            Included in this build:
+            - Pure-Kotlin segmented download engine: ranged requests, resume with ETag/Last-Modified
+              validation, 5xx retry with exponential backoff, single-stream fallback, SHA-256 check.
+            - Debug-only **Engine Lab** (Downloads → Engine Lab): URL, 1–16 segments, start, pause,
+              resume, cancel, live speed/ETA and per-segment progress.
+            - Room persistence for download rows and segment checkpoints.
+
+            Install: download the APK and allow install from unknown sources when prompted.
+            Files downloaded from the lab are stored in app-private storage until the MediaStore
+            integration in P2.

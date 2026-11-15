@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
@@ -26,10 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.abhi.swiftdm.ui.components.AppIcon
+import com.abhi.swiftdm.ui.components.InsetGroup
 import com.abhi.swiftdm.ui.components.LargeTitleCollapseBar
 import com.abhi.swiftdm.ui.components.LargeTitleHeader
 import com.abhi.swiftdm.ui.components.SegmentedControl
 import com.abhi.swiftdm.ui.components.SymbolIcon
+import com.abhi.swiftdm.ui.components.pressable
 import com.abhi.swiftdm.ui.theme.SwiftShape
 import com.abhi.swiftdm.ui.theme.SwiftTheme
 import com.abhi.swiftdm.ui.theme.SwiftType
@@ -47,10 +51,14 @@ enum class DownloadFilter(val label: String) {
  * segmented control, inset card, floating tab bar and collapsing title.
  */
 @Composable
-fun DownloadsScreen(modifier: Modifier = Modifier) {
+fun DownloadsScreen(
+    modifier: Modifier = Modifier,
+    onOpenEngineLab: (() -> Unit)? = null,
+) {
     val listState = rememberLazyListState()
     var selectedFilter by rememberSaveable { mutableStateOf(DownloadFilter.All) }
     val haptics = rememberSwiftHaptics()
+    val openEngineLab = onOpenEngineLab
     val collapsed by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 16
@@ -86,9 +94,59 @@ fun DownloadsScreen(modifier: Modifier = Modifier) {
             item(key = "empty-state") {
                 EmptyDownloadsCard(filter = selectedFilter)
             }
+            if (openEngineLab != null) {
+                item(key = "engine-lab") {
+                    InsetGroup(modifier = Modifier.padding(top = 16.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pressable(
+                                    onClickLabel = "Open Engine Lab",
+                                    onClick = openEngineLab,
+                                )
+                                .padding(16.dp),
+                            verticalAlignment = ComposeAlignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(SwiftShape.iconTile)
+                                    .background(palette.blue.copy(alpha = 0.12f)),
+                                contentAlignment = ComposeAlignment.Center,
+                            ) {
+                                SymbolIcon(
+                                    icon = AppIcon.Speed,
+                                    contentDescription = null,
+                                    size = 20.dp,
+                                    tint = palette.blue,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Engine Lab",
+                                    style = SwiftType.headline,
+                                    color = palette.label,
+                                )
+                                Text(
+                                    text = "P1 · live per-segment test bench",
+                                    style = SwiftType.footnote,
+                                    color = palette.secondaryLabel,
+                                )
+                            }
+                            SymbolIcon(
+                                icon = AppIcon.ChevronRight,
+                                contentDescription = null,
+                                size = 18.dp,
+                                tint = palette.tertiaryLabel,
+                            )
+                        }
+                    }
+                }
+            }
             item(key = "phase-note") {
                 Text(
-                    text = "P0 build · the segmented download engine lands in P1",
+                    text = "P1 build · segmented engine and debug lab",
                     style = SwiftType.caption,
                     color = SwiftTheme.palette.tertiaryLabel,
                     textAlign = TextAlign.Center,

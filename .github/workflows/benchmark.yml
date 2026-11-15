@@ -1,0 +1,50 @@
+name: Engine benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "HTTP(S) URL with byte-range support (100 MB test file by default)"
+        required: false
+        default: "https://proof.ovh.net/files/100Mb.dat"
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    name: 1 vs 8 segments
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run real-network benchmark
+        env:
+          BENCH_URL: ${{ inputs.url }}
+        run: >
+          ./gradlew testDebugUnitTest
+          --tests "com.abhi.swiftdm.engine.EngineBenchmarkTest"
+          -Dswiftdm.benchmarkUrl="$BENCH_URL"
+          --stacktrace
+
+      - name: Upload benchmark report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: app/build/reports/tests/testDebugUnitTest
+          retention-days: 14
+          if-no-files-found: ignore
