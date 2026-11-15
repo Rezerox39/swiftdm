@@ -63,8 +63,7 @@ internal class EngineTestServer(
             .setHeader("Content-Length", content.size.toString())
             .setHeader("Content-Type", "application/octet-stream")
             .setHeader("Content-Disposition", "attachment; filename=\"sample.bin\"")
-            .setHeader("ETag", etag)
-            .setHeader("Last-Modified", lastModified)
+            .validators()
         if (supportsRanges) response.setHeader("Accept-Ranges", "bytes")
         return response
     }
@@ -97,8 +96,7 @@ internal class EngineTestServer(
             .setHeader("Content-Range", "bytes $start-$safeEnd/${content.size}")
             .setHeader("Content-Length", slice.size.toString())
             .setHeader("Content-Type", "application/octet-stream")
-            .setHeader("ETag", etag)
-            .setHeader("Last-Modified", lastModified)
+            .validators()
             .setBody(Buffer().write(slice))
         return withThrottle(response)
     }
@@ -108,9 +106,14 @@ internal class EngineTestServer(
         .setHeader("Content-Length", content.size.toString())
         .setHeader("Content-Type", "application/octet-stream")
         .setHeader("Content-Disposition", "attachment; filename=\"sample.bin\"")
-        .setHeader("ETag", etag)
-        .setHeader("Last-Modified", lastModified)
+        .validators()
         .setBody(Buffer().write(content))
+
+    private fun MockResponse.validators(): MockResponse {
+        etag?.let { setHeader("ETag", it) }
+        lastModified?.let { setHeader("Last-Modified", it) }
+        return this
+    }
 
     private fun withThrottle(response: MockResponse): MockResponse {
         if (throttleBytes > 0L && throttlePeriodMs > 0L) {
