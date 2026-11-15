@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- iOS systemGroupedBackground (light) -->
+    <color name="system_background">#F2F2F7</color>
+    <!-- iOS systemBlue (light) -->
+    <color name="launcher_background">#007AFF</color>
+</resources>
