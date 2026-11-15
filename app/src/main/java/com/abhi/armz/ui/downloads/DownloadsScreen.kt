@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.animateItem
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -476,7 +475,7 @@ private fun MetadataText(item: DownloadItem, lead: String?) {
         animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing),
         label = "animatedBytes",
     )
-    val downloaded = Formatters.bytes(animatedBytes.value.toLong())
+    val downloaded = Formatters.bytes(animatedBytes.toLong())
     val total = if (item.totalBytes > 0L) Formatters.bytes(item.totalBytes) else "unknown size"
     val speed = Formatters.speed(item.bytesPerSecond)
     val eta = Formatters.eta(item.etaSeconds)

@@ -20,7 +20,13 @@ fun Modifier.pressable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     onClick: () -> Unit,
-): Modifier = pressable(enabled, onClickLabel, null, onClick)
+): Modifier = pressable(
+    enabled = enabled,
+    onClickLabel = onClickLabel,
+    onLongClickLabel = null,
+    onLongClick = null,
+    onClick = onClick,
+)
 
 /** Same press feedback, plus a long-press action for download rows. */
 @OptIn(ExperimentalFoundationApi::class)

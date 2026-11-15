@@ -13,6 +13,7 @@ import com.abhi.armz.engine.DownloadEngine
 import com.abhi.armz.engine.DownloadHandle
 import com.abhi.armz.engine.DownloadRequest
 import com.abhi.armz.engine.DownloadSnapshot
+import com.abhi.armz.engine.DownloadStatus
 import com.abhi.armz.engine.ProbeResult
 import com.abhi.armz.engine.LocalFilePublisher
 import com.abhi.armz.engine.PublishedFile
@@ -72,7 +73,26 @@ class DownloadRepository @Inject constructor(
             fileNameOverride = fileName,
             mimeTypeHint = mimeType,
         )
-        persistSnapshot(request.placeholderSnapshot())
+        persistSnapshot(
+            DownloadSnapshot(
+                id = request.id,
+                url = request.url,
+                fileName = request.fileNameOverride ?: "",
+                filePath = "",
+                totalBytes = request.resume?.totalBytes ?: -1L,
+                downloadedBytes = 0L,
+                status = DownloadStatus.Probing,
+                bytesPerSecond = 0L,
+                etaSeconds = null,
+                rangeSupported = false,
+                etag = request.resume?.etag,
+                lastModified = request.resume?.lastModified,
+                segmentCount = request.safeSegments,
+                segments = emptyList(),
+                sha256 = null,
+                error = null,
+            ),
+        )
         return start(request)
     }
 
