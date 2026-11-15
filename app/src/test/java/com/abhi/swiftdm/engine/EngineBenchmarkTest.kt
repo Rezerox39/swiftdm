@@ -56,7 +56,8 @@ class EngineBenchmarkTest {
     }
 
     private suspend fun measure(segments: Int, directory: File): Measurement {
-        val handle = DownloadEngine().start(
+        println("SWIFTDM_BENCH_START segments=$segments")
+        val handle = DownloadEngine(log = { line -> println("SWIFTDM_ENGINE $line") }).start(
             DownloadRequest(
                 id = "bench-${segments}-${UUID.randomUUID()}",
                 url = url,
@@ -69,6 +70,7 @@ class EngineBenchmarkTest {
             handle.state.first { it.status.isTerminal }
         }
         val elapsedMillis = (System.nanoTime() - startedAt) / 1_000_000L
+        println("SWIFTDM_BENCH_END segments=$segments millis=$elapsedMillis status=${result.status}")
         check(result.status == DownloadStatus.Completed) {
             "Benchmark failed with ${result.status}: ${result.error?.message}"
         }

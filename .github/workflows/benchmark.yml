@@ -6,7 +6,7 @@ on:
       url:
         description: "HTTP(S) URL with byte-range support (100 MB test file by default)"
         required: false
-        default: "https://proof.ovh.net/files/100Mb.dat"
+        default: "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz"
 
 permissions:
   contents: read

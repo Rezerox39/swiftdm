@@ -35,6 +35,7 @@ class DownloadEngine(
     private val client: OkHttpClient = HttpClients.shared,
     private val retryPolicy: RetryPolicy = RetryPolicy(),
     private val clock: () -> Long = System::currentTimeMillis,
+    private val log: (String) -> Unit = {},
 ) {
 
     private val prober = HttpProbe(client)
@@ -50,6 +51,7 @@ class DownloadEngine(
             retryPolicy = retryPolicy,
             checkpointSink = checkpointSink,
             clock = clock,
+            log = log,
         )
         session.start()
         return session.handle
@@ -76,6 +78,7 @@ internal class DownloadSession(
     private val retryPolicy: RetryPolicy,
     private val checkpointSink: CheckpointSink,
     private val clock: () -> Long,
+    private val log: (String) -> Unit,
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -136,12 +139,17 @@ internal class DownloadSession(
 
     private suspend fun runDownload(revalidate: Boolean) {
         try {
+            log("start ${request.id} ${request.url} segments=${request.safeSegments}")
             status = DownloadStatus.Probing
             lastError = null
             publish(persist = true)
 
             val probe = probeWithRetry()
             probeResult = probe
+            log(
+                "probe total=${probe.contentLength} ranges=${probe.rangeSupported} " +
+                    "etag=${probe.etag} lastModified=${probe.lastModified}"
+            )
 
             val resume = if (revalidate) currentResumeState() else request.resume
             val resumeFile = resume?.let { File(it.filePath) }
@@ -150,6 +158,7 @@ internal class DownloadSession(
 
             val target = resumeFile ?: resolveTarget(probe)
             targetFile = target
+            log("target ${target.absolutePath} resume=${resume != null} restart=$contentChanged")
             target.parentFile?.mkdirs()
             if (contentChanged) resetForRestart()
 
@@ -193,9 +202,11 @@ internal class DownloadSession(
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.Http(retryable.code, request.url)
                 }
+                log("probe retry $attempt after HTTP ${retryable.code}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             } catch (network: IOException) {
                 if (attempt >= retryPolicy.maxAttempts) throw EngineException.Network(network)
+                log("probe retry $attempt after ${network.message}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             }
         }
@@ -214,6 +225,7 @@ internal class DownloadSession(
         speedMeter.reset()
         speedMeter.onProgress(segmentStore.downloadedTotal())
         status = DownloadStatus.Downloading
+        log("segmented total=$total ranges=${segmentStore.size} already=${segmentStore.downloadedTotal()}")
         publish(persist = true)
 
         coroutineScope {
@@ -284,12 +296,14 @@ internal class DownloadSession(
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, retryable)
                 }
+                log("segment $index retry $attempt after HTTP ${retryable.code}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             } catch (network: IOException) {
                 currentCoroutineContext().ensureActive()
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, network)
                 }
+                log("segment $index retry $attempt after ${network.message}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             }
         }
@@ -416,12 +430,14 @@ internal class DownloadSession(
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, retryable)
                 }
+                log("segment $index retry $attempt after HTTP ${retryable.code}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             } catch (network: IOException) {
                 currentCoroutineContext().ensureActive()
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, network)
                 }
+                log("segment $index retry $attempt after ${network.message}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             }
         }
@@ -493,6 +509,7 @@ internal class DownloadSession(
         speedMeter.reset()
         writer?.close()
         writer = null
+        log("paused downloaded=${store?.downloadedTotal() ?: singleCursor}")
         publish(persist = true)
     }
 
@@ -510,6 +527,7 @@ internal class DownloadSession(
         job?.cancelAndJoin()
         if (status == DownloadStatus.Completed) return
         status = DownloadStatus.Cancelled
+        log("cancelled ${targetFile?.absolutePath}")
         speedMeter.reset()
         writer?.close()
         writer = null
@@ -600,6 +618,7 @@ internal class DownloadSession(
             throw EngineException.Checksum(expected, digest)
         }
         sha256 = digest
+        log("completed ${file.absolutePath} sha256=$digest")
         status = DownloadStatus.Completed
         speedMeter.reset()
         writer?.close()
@@ -608,6 +627,7 @@ internal class DownloadSession(
     }
 
     private suspend fun fail(failure: EngineException) {
+        log("failed ${failure.message}")
         lastError = failure.toEngineError()
         status = DownloadStatus.Failed
         speedMeter.reset()
