@@ -430,14 +430,14 @@ internal class DownloadSession(
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, retryable)
                 }
-                log("segment $index retry $attempt after HTTP ${retryable.code}")
+                log("stream retry $attempt after HTTP ${retryable.code}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             } catch (network: IOException) {
                 currentCoroutineContext().ensureActive()
                 if (attempt >= retryPolicy.maxAttempts) {
                     throw EngineException.RetryExhausted(attempt, network)
                 }
-                log("segment $index retry $attempt after ${network.message}")
+                log("stream retry $attempt after ${network.message}")
                 delay(retryPolicy.delayMillisAfter(attempt))
             }
         }
