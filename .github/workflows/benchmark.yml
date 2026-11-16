@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   benchmark:
-    name: 1 vs 8 segments
+    name: 8 / 16 / 32 segments
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

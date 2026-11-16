@@ -14,7 +14,7 @@ import java.util.Locale
 import java.util.UUID
 
 /**
- * Real-network 1-vs-8-segment benchmark. Disabled unless -Darmz.benchmarkUrl=<url> is passed,
+ * Real-network 8-vs-16-vs-32-segment benchmark. Disabled unless -Darmz.benchmarkUrl=<url> is passed,
  * which is what the Engine benchmark workflow does.
  */
 class EngineBenchmarkTest {
@@ -28,28 +28,30 @@ class EngineBenchmarkTest {
     }
 
     @Test
-    fun oneVersusEightSegments() = runBlocking {
+    fun segmentCountComparison() = runBlocking {
         val directory = Files.createTempDirectory("armz-bench").toFile()
         try {
-            val one = measure(segments = 1, directory = directory)
-            val eight = measure(segments = 8, directory = directory)
+            val results = linkedMapOf<Int, Measurement>()
+            for (segments in listOf(8, 16, 32)) {
+                results[segments] = measure(segments = segments, directory = directory)
+            }
 
-            val oneHash = Sha256.of(File(one.filePath))
-            val eightHash = Sha256.of(File(eight.filePath))
-            assertEquals("1 and 8 segment files must be identical", oneHash, eightHash)
-            assertTrue("expected non-zero bytes", one.bytes > 0L)
+            val hashes = results.values.map { Sha256.of(File(it.filePath)) }.toSet()
+            assertEquals("all segment counts must produce identical bytes", 1, hashes.size)
+            assertTrue(results.values.all { it.bytes > 0L })
 
             println("ARMz_BENCH url=$url")
-            println(
-                "ARMz_BENCH segments=1 bytes=${one.bytes} millis=${one.millis} " +
-                    "mib_per_s=${format(one.mebibytesPerSecond)}"
-            )
-            println(
-                "ARMz_BENCH segments=8 bytes=${eight.bytes} millis=${eight.millis} " +
-                    "mib_per_s=${format(eight.mebibytesPerSecond)}"
-            )
-            println("ARMz_BENCH ratio=${format(eight.mebibytesPerSecond / one.mebibytesPerSecond)}")
-            println("ARMz_BENCH sha256=$oneHash")
+            results.forEach { (segments, measurement) ->
+                println(
+                    "ARMz_BENCH segments=$segments bytes=${measurement.bytes} " +
+                        "millis=${measurement.millis} " +
+                        "mib_per_s=${format(measurement.mebibytesPerSecond)}"
+                )
+            }
+            val baseline = results.getValue(8).mebibytesPerSecond
+            println("ARMz_BENCH ratio16v8=${format(results.getValue(16).mebibytesPerSecond / baseline)}")
+            println("ARMz_BENCH ratio32v8=${format(results.getValue(32).mebibytesPerSecond / baseline)}")
+            println("ARMz_BENCH sha256=${hashes.single()}")
         } finally {
             directory.deleteRecursively()
         }
