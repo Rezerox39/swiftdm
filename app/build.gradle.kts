@@ -14,8 +14,8 @@ android {
         applicationId = "com.abhi.armz"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4.0-u1"
+        versionCode = 5
+        versionName = "0.4.1-u1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

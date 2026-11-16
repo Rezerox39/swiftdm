@@ -265,7 +265,7 @@ class WebViewBridge @Inject constructor(
     private fun loadSettings(): BridgeSettings = BridgeSettings(
         wifiOnly = preferences.getBoolean(KEY_WIFI_ONLY, false),
         maxConcurrentDownloads = preferences.getInt(KEY_MAX_CONCURRENT, 3),
-        defaultSegments = preferences.getInt(KEY_DEFAULT_SEGMENTS, 8),
+        defaultSegments = preferences.getInt(KEY_DEFAULT_SEGMENTS, 16),
         speedLimitBytesPerSecond = preferences.getLong(KEY_SPEED_LIMIT, -1L).takeIf { it >= 0L },
         keepDownloadsAlive = preferences.getBoolean(KEY_KEEP_ALIVE, true),
         visualEffects = preferences.getString(KEY_VISUAL_EFFECTS, "auto") ?: "auto",

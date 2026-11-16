@@ -1,7 +1,7 @@
 {
   "name": "armz-web",
   "private": true,
-  "version": "0.4.0-u1",
+  "version": "0.4.1-u1",
   "type": "module",
   "scripts": {
     "dev": "vite",

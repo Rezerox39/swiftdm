@@ -4,33 +4,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Download shaft -->
     <path
-        android:pathData="M54,27 L54,62"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
-        android:strokeLineCap="round" />
-
-    <!-- Download chevron -->
-    <path
-        android:pathData="M38,47 L54,64 L70,47"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-
-    <!-- Tray with a subtle Z-step notch in the rim -->
-    <path
-        android:pathData="M30,72 L44,72 L44,68 L64,68 L64,72 L78,72"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:pathData="M30,75 L30,78 Q30,84 36,84 L72,84 Q78,84 78,78 L78,75"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M24.56 63 31.44 42.99H36.8L43.82 63H39.26L36.06 53.33Q35.47 51.45 34.88 49.26Q34.29 47.07 33.62 44.45H34.54Q33.9 47.07 33.33 49.28Q32.76 51.49 32.21 53.33L29.08 63ZM28.88 58.41V55.17H39.51V58.41Z M46.15 63V42.99H52.39L55.64 52.2Q55.84 52.83 56.11 53.84Q56.38 54.85 56.65 56Q56.92 57.16 57.16 58.23Q57.4 59.31 57.55 60.1H56.72Q56.88 59.32 57.11 58.25Q57.35 57.18 57.62 56.03Q57.88 54.87 58.15 53.86Q58.42 52.85 58.62 52.2L61.82 42.99H68.09V63H63.98V53.55Q63.98 52.9 64 51.93Q64.02 50.95 64.05 49.83Q64.09 48.71 64.12 47.58Q64.14 46.44 64.14 45.43H64.45Q64.18 46.53 63.87 47.71Q63.55 48.89 63.24 49.99Q62.93 51.09 62.65 52.01Q62.37 52.94 62.17 53.55L58.84 63H55.4L52.03 53.55Q51.83 52.94 51.54 52.03Q51.26 51.11 50.94 50.01Q50.62 48.91 50.3 47.73Q49.97 46.55 49.68 45.43H50.04Q50.05 46.4 50.08 47.53Q50.11 48.66 50.14 49.78Q50.18 50.91 50.2 51.89Q50.22 52.87 50.22 53.55V63Z M71.39 63V60.53L78.74 51.45V51.36H71.58V48.12H83.58V50.82L76.61 59.67V59.76H83.8V63Z"
+        android:fillColor="#FFFFFF" />
 </vector>

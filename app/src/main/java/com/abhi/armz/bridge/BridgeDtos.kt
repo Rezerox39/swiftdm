@@ -43,7 +43,7 @@ data class BridgeSettingsEvent(
 data class BridgeSettings(
     val wifiOnly: Boolean = false,
     val maxConcurrentDownloads: Int = 3,
-    val defaultSegments: Int = 8,
+    val defaultSegments: Int = 16,
     val speedLimitBytesPerSecond: Long? = null,
     val keepDownloadsAlive: Boolean = true,
     val visualEffects: String = "auto",
@@ -95,6 +95,13 @@ object BridgeMapper {
         } else {
             0f
         }
+        val speed = if (active) entity.bytesPerSecond.coerceAtLeast(0L) else 0L
+        val remaining = (entity.totalBytes - entity.downloadedBytes).coerceAtLeast(0L)
+        val eta = if (active && speed > 0L && entity.totalBytes > 0L && remaining > 0L) {
+            remaining / speed
+        } else {
+            null
+        }
         return BridgeDownload(
             id = entity.id,
             url = entity.url,
@@ -105,8 +112,8 @@ object BridgeMapper {
             totalBytes = entity.totalBytes,
             downloadedBytes = entity.downloadedBytes,
             status = entity.status,
-            bytesPerSecond = entity.bytesPerSecond,
-            etaSeconds = null,
+            bytesPerSecond = speed,
+            etaSeconds = eta,
             error = entity.errorMessage,
             finalizeStep = entity.finalizeStep,
             finalizeProgress = entity.finalizeProgress,

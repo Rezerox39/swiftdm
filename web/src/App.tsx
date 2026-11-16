@@ -1,14 +1,22 @@
 import { useEffect } from 'react';
-import { LaunchScreen } from './screens/LaunchScreen';
 import { DownloadsScreen } from './screens/DownloadsScreen';
 import { AddDownloadSheet } from './screens/AddDownloadSheet';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { Toast } from './components/Toast';
 import { installMockBridge } from './bridge/mock';
 import { useArmzStore } from './store/useArmzStore';
-import type { Settings } from './bridge/types';
+import type { DownloadItem, Settings } from './bridge/types';
+
+function readJson<T>(raw: string | undefined): T | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
 
 export default function App() {
-  const introCompleted = useArmzStore((state) => state.introCompleted);
   const addOpen = useArmzStore((state) => state.addOpen);
   const settingsOpen = useArmzStore((state) => state.settingsOpen);
   const activeFilter = useArmzStore((state) => state.activeFilter);
@@ -16,18 +24,20 @@ export default function App() {
   const setSettingsOpen = useArmzStore((state) => state.setSettingsOpen);
 
   useEffect(() => {
-    if (import.meta.env.DEV) {
-      installMockBridge();
-      return;
-    }
-    const rawSettings = window.ARMz?.getSettings();
-    if (rawSettings) {
-      try {
-        useArmzStore.getState().applySettings(JSON.parse(rawSettings) as Settings);
-      } catch {
-        // Keep the U1 defaults if the native payload is malformed.
-      }
-    }
+    if (import.meta.env.DEV) installMockBridge();
+
+    const store = useArmzStore.getState();
+    const settings = readJson<Settings>(window.ARMz?.getSettings());
+    if (settings) store.applySettings(settings);
+
+    const downloadPayload = readJson<DownloadItem[] | { downloads: DownloadItem[] }>(
+      window.ARMz?.listDownloads(),
+    );
+    const downloads = Array.isArray(downloadPayload)
+      ? downloadPayload
+      : downloadPayload?.downloads;
+    if (downloads) store.setDownloads(downloads);
+
     window.ARMz?.ready();
   }, []);
 
@@ -56,13 +66,9 @@ export default function App() {
     }
   }, [addOpen, settingsOpen]);
 
-  if (!introCompleted) {
-    return <LaunchScreen onFinished={() => undefined} />;
-  }
-
   return (
     <div
-      className="relative h-full w-full overflow-hidden bg-black font-sans text-[#F2F2F7]"
+      className="relative h-full w-full overflow-hidden bg-black font-sans text-white antialiased"
       style={{
         paddingTop: 'var(--sat)',
         paddingBottom: 'var(--sab)',
@@ -70,15 +76,15 @@ export default function App() {
         paddingRight: 'var(--sar)',
       }}
     >
-      <div className="relative h-full w-full">
-        <DownloadsScreen
-          activeFilter={activeFilter}
-          onOpenAdd={() => setAddOpen(true)}
-          onOpenSettings={() => setSettingsOpen(true)}
-        />
-      </div>
+      <DownloadsScreen
+        activeFilter={activeFilter}
+        onOpenAdd={() => setAddOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+
       {addOpen ? <AddDownloadSheet onClose={() => setAddOpen(false)} /> : null}
       {settingsOpen ? <SettingsScreen onClose={() => setSettingsOpen(false)} /> : null}
+      <Toast />
     </div>
   );
 }

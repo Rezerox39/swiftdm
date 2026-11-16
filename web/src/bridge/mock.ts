@@ -1,13 +1,16 @@
 import type { ARMzBridge } from './index';
 import type { DownloadItem, ProbeResult, Settings } from './types';
+import { fileNameFromUrl, hostFromUrl } from '../lib/format';
 import { useArmzStore } from '../store/useArmzStore';
+
+let mockTicker: number | null = null;
 
 function createMockDownload(url: string, segments: number): DownloadItem {
   const now = Date.now();
   return {
     id: `mock-${now}-${Math.random().toString(36).slice(2, 8)}`,
     url,
-    fileName: decodeURIComponent(url.split('/').pop()?.split('?')[0] || 'download.bin'),
+    fileName: fileNameFromUrl(url),
     filePath: '',
     contentUri: null,
     mimeType: 'application/octet-stream',
@@ -33,7 +36,10 @@ export function createArmzBridge(): ARMzBridge {
       if (!request.url || !/^https?:\/\//.test(request.url)) {
         return JSON.stringify({ ok: false, error: 'invalid_url' });
       }
-      const download = createMockDownload(request.url, request.segments ?? 8);
+      const download = createMockDownload(
+        request.url,
+        request.segments ?? useArmzStore.getState().settings.defaultSegments,
+      );
       useArmzStore.setState((state) => ({ downloads: [download, ...state.downloads] }));
       return JSON.stringify({ ok: true, id: download.id });
     },
@@ -109,7 +115,7 @@ export function createArmzBridge(): ARMzBridge {
         rangeSupported: true,
         etag: 'mock-etag',
         lastModified: 'mock-last-modified',
-        fileName: decodeURIComponent(request.url.split('/').pop()?.split('?')[0] || 'ARMz-mock.bin'),
+        fileName: fileNameFromUrl(request.url) || hostFromUrl(request.url) || 'ARMz-mock.bin',
         mimeType: 'application/octet-stream',
       };
       return JSON.stringify(result);
@@ -134,8 +140,39 @@ export function createArmzBridge(): ARMzBridge {
   return bridge;
 }
 
+function startMockTicker(): void {
+  if (mockTicker !== null) return;
+  mockTicker = window.setInterval(() => {
+    useArmzStore.setState((state) => {
+      let changed = false;
+      const downloads = state.downloads.map((download) => {
+        if (download.status !== 'Downloading' || !download.live) return download;
+        const total = download.totalBytes > 0 ? download.totalBytes : 128 * 1024 * 1024;
+        const step = Math.max(512 * 1024, Math.round(total / 120));
+        const next = Math.min(total, download.downloadedBytes + step);
+        const speed = 14 * 1024 * 1024 + Math.round(Math.random() * 5 * 1024 * 1024);
+        const finished = next >= total;
+        changed = true;
+        return {
+          ...download,
+          totalBytes: total,
+          downloadedBytes: next,
+          bytesPerSecond: finished ? 0 : speed,
+          etaSeconds: finished ? null : Math.ceil((total - next) / speed),
+          fraction: next / total,
+          status: finished ? 'Completed' as const : 'Downloading' as const,
+          live: !finished,
+          filePath: finished ? `/tmp/${fileNameFromUrl(download.url)}` : download.filePath,
+          contentUri: finished ? `content://armz.mock/${download.id}` : download.contentUri,
+        };
+      });
+      return changed ? { downloads } : {};
+    });
+  }, 600);
+}
+
 export function installMockBridge(): void {
-  if (typeof window !== 'undefined') {
-    window.ARMz = createArmzBridge();
-  }
+  if (typeof window === 'undefined') return;
+  if (!window.ARMz) window.ARMz = createArmzBridge();
+  startMockTicker();
 }

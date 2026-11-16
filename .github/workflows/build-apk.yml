@@ -104,14 +104,16 @@ jobs:
             U1 preview build of ARMz (debug APK).
 
             Included in this build:
+            - Reworked U1 WebView UI: AMOLED-black hierarchy, clearer download rows, filter
+              counts, bulk controls, action sheets, toasts, a two-step Add Download flow, and
+              settings that only expose working controls.
+            - Faster starts: no duplicate URL probe, persisted parallel-connection setting
+              (16 by default), computed ETA, and clearer live speed/remaining-time readouts.
+            - Launcher, adaptive and monochrome icons now show a white AMz wordmark on black.
             - React 18 + TypeScript + Tailwind UI built with Vite and bundled into the APK.
             - React Bits motion components (Aurora, BlurText, CountUp, Magnet, SpringCheck,
               Stepper), used under MIT + Commons Clause; see `THIRD_PARTY_NOTICES.md`.
-            - Single edge-to-edge WebView shell with a hardware layer, transparent background,
-              locked text zoom, disabled overscroll, and splash hold until the web app is ready.
             - Typed JSON-only JavaScript bridge with Kotlin validation, throttled native events,
               Android 12 splash fallback, safe-area/IME CSS variables and high/low perf tier.
-            - Existing native download engine, foreground service, notifications, queue and
-              network layers from P1–P3 remain unchanged.
 
             Install: download the APK and allow install from unknown sources when prompted.

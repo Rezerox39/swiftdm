@@ -22,3 +22,39 @@ export function formatEta(seconds: number | null): string {
   const ss = String(secs).padStart(2, '0');
   return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
 }
+
+export function isHttpUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  try {
+    const url = new URL(trimmed);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function fileNameFromUrl(value: string): string {
+  try {
+    const url = new URL(value.trim());
+    const pathName = url.pathname.split('/').filter(Boolean).pop();
+    const decoded = pathName ? decodeURIComponent(pathName) : '';
+    return decoded || url.hostname || 'Download';
+  } catch {
+    return 'Download';
+  }
+}
+
+export function hostFromUrl(value: string): string {
+  try {
+    return new URL(value.trim()).hostname.replace(/^www\./i, '');
+  } catch {
+    return '';
+  }
+}
+
+export function extensionOf(fileName: string): string {
+  const clean = fileName.split('?')[0].split('#')[0].trim();
+  const dot = clean.lastIndexOf('.');
+  return dot > 0 && dot < clean.length - 1 ? clean.slice(dot + 1).toLowerCase() : '';
+}
