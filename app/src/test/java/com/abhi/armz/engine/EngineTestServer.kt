@@ -105,6 +105,7 @@ internal class EngineTestServer(
             .setHeader("Content-Range", "bytes $start-$safeEnd/${content.size}")
             .setHeader("Content-Length", slice.size.toString())
             .setHeader("Content-Type", "application/octet-stream")
+            .setHeader("Content-Disposition", "attachment; filename=\"sample.bin\"")
             .validators()
             .setBody(Buffer().write(slice))
         val throttled = withThrottle(response)

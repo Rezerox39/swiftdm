@@ -21,10 +21,9 @@ data class ProbeResult(
 /**
  * Detects size, byte-range support, validators and a suggested file name.
  *
- * A HEAD request is attempted first. If HEAD fails, is blocked, or does not advertise ranges we
- * fall back to a one-byte ranged GET (`Range: bytes=0-0`), which is the most reliable signal:
- * 206 means ranges work and Content-Range carries the full length, 200 means we must fall back to
- * a single connection.
+ * A single `Range: bytes=0-0` GET is the most reliable signal and avoids the extra round trip a
+ * HEAD request would add. 206 means ranges work and Content-Range carries the full length; 200
+ * means the server ignored the range and the engine must fall back to one connection.
  */
 class HttpProbe(private val client: OkHttpClient) {
 
@@ -43,102 +42,63 @@ class HttpProbe(private val client: OkHttpClient) {
         registerCall: (Call) -> Unit,
         unregisterCall: (Call) -> Unit,
     ): ProbeResult {
-        var headLength = -1L
-        var headDisposition: String? = null
-        var headContentType: String? = null
-        var headEtag: String? = null
-        var headLastModified: String? = null
-        var headFinalUrl: String? = null
-
-        val headRequest = buildRequest(url = url, headers = headers, head = true)
-        val headCall = client.newCall(headRequest)
-        registerCall(headCall)
+        val request = buildRequest(url = url, headers = headers, range = "bytes=0-0")
+        val call = client.newCall(request)
+        registerCall(call)
         try {
-            headCall.execute().use { response ->
-            headFinalUrl = response.request.url.toString()
-            headDisposition = response.header("Content-Disposition")
-            headContentType = response.header("Content-Type")
-            headEtag = response.header("ETag")
-            headLastModified = response.header("Last-Modified")
-            headLength = response.header("Content-Length")?.toLongOrNull() ?: -1L
+            call.execute().use { response ->
+                val finalUrl = response.request.url.toString()
+                val disposition = response.header("Content-Disposition")
+                val contentType = response.header("Content-Type")
+                val etag = response.header("ETag")
+                val lastModified = response.header("Last-Modified")
+                val fileName = FileNames.fromContentDisposition(disposition)
+                    ?: FileNames.fromUrl(finalUrl)
 
-            when {
-                response.code == 404 || response.code == 410 ->
-                    throw EngineException.Http(response.code, url)
+                when {
+                    response.code == 206 -> {
+                        val total = parseRangeTotal(response.header("Content-Range"))
+                        if (total == null || total <= 0L) {
+                            throw EngineException.Unexpected("Server returned 206 without a usable total size")
+                        }
+                        return ProbeResult(
+                            finalUrl = finalUrl,
+                            contentLength = total,
+                            rangeSupported = true,
+                            etag = etag,
+                            lastModified = lastModified,
+                            fileName = fileName,
+                            mimeType = contentType,
+                        )
+                    }
 
-                response.code == 403 -> Unit // Some CDNs block HEAD only; retry with GET below.
-                response.code in 500..599 || response.code == 408 || response.code == 429 ->
-                    throw EngineException.RetryableHttp(response.code, url)
-            }
+                    response.code == 200 -> {
+                        val total = response.header("Content-Length")?.toLongOrNull() ?: -1L
+                        return ProbeResult(
+                            finalUrl = finalUrl,
+                            contentLength = total,
+                            rangeSupported = false,
+                            etag = etag,
+                            lastModified = lastModified,
+                            fileName = fileName,
+                            mimeType = contentType,
+                        )
+                    }
 
-                val advertisesRanges = response.header("Accept-Ranges")?.equals("bytes", true) == true
-                if (response.isSuccessful && headLength > 0 && advertisesRanges) {
-                    return ProbeResult(
-                        finalUrl = headFinalUrl ?: url,
-                        contentLength = headLength,
-                        rangeSupported = true,
-                        etag = headEtag,
-                        lastModified = headLastModified,
-                        fileName = FileNames.fromContentDisposition(headDisposition),
-                        mimeType = headContentType,
-                    )
-                }
-            }
-        } finally {
-            unregisterCall(headCall)
-        }
+                    response.code == 416 ->
+                        throw EngineException.Unexpected("Server rejected byte range 0-0 (HTTP 416)")
 
-        val rangeRequest = buildRequest(url = url, headers = headers, range = "bytes=0-0")
-        val rangeCall = client.newCall(rangeRequest)
-        registerCall(rangeCall)
-        try {
-            rangeCall.execute().use { response ->
-            val finalUrl = response.request.url.toString()
-            val disposition = response.header("Content-Disposition") ?: headDisposition
-            val contentType = response.header("Content-Type") ?: headContentType
-            val etag = response.header("ETag") ?: headEtag
-            val lastModified = response.header("Last-Modified") ?: headLastModified
-            val fileName = FileNames.fromContentDisposition(disposition)
-                ?: FileNames.fromUrl(finalUrl)
+                    isRetryableStatus(response.code) ->
+                        throw EngineException.RetryableHttp(response.code, url)
 
-            when {
-                response.code == 206 -> {
-                    val total = parseRangeTotal(response.header("Content-Range")) ?: headLength
-                    if (total <= 0L) throw EngineException.Unexpected("Server returned 206 without a usable total size")
-                    return ProbeResult(
-                        finalUrl = finalUrl,
-                        contentLength = total,
-                        rangeSupported = true,
-                        etag = etag,
-                        lastModified = lastModified,
-                        fileName = fileName,
-                        mimeType = contentType,
-                    )
-                }
-
-                response.code == 200 -> {
-                    val total = response.header("Content-Length")?.toLongOrNull() ?: headLength
-                    return ProbeResult(
-                        finalUrl = finalUrl,
-                        contentLength = total,
-                        rangeSupported = false,
-                        etag = etag,
-                        lastModified = lastModified,
-                        fileName = fileName,
-                        mimeType = contentType,
-                    )
-                }
-
-                response.code == 416 -> throw EngineException.Unexpected("Server rejected byte range 0-0 (HTTP 416)")
-
-                response.code in 500..599 || response.code == 408 || response.code == 429 ->
-                    throw EngineException.RetryableHttp(response.code, url)
+                    isTerminalStatus(response.code) ->
+                        throw EngineException.Http(response.code, url)
 
                     else -> throw EngineException.Http(response.code, url)
                 }
             }
         } finally {
-            unregisterCall(rangeCall)
+            unregisterCall(call)
         }
     }
 
@@ -153,10 +113,8 @@ class HttpProbe(private val client: OkHttpClient) {
         url: String,
         headers: Map<String, String>,
         range: String? = null,
-        head: Boolean = false,
     ): Request {
-        val builder = Request.Builder().url(url)
-        if (head) builder.head() else builder.get()
+        val builder = Request.Builder().url(url).get()
         headers.forEach { (name, value) ->
             if (!name.equals("Range", ignoreCase = true) &&
                 !name.equals("Accept-Encoding", ignoreCase = true)

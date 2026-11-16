@@ -61,6 +61,8 @@ class DownloadEngineTest {
         origin.etag = "\"probe-tag\""
         val probe = HttpProbe(HttpClients.downloadClient()).probe(url())
 
+        assertEquals(0, origin.headCount.get())
+        assertEquals(1, origin.getCount.get())
         assertEquals(origin.content.size.toLong(), probe.contentLength)
         assertTrue(probe.rangeSupported)
         assertEquals("\"probe-tag\"", probe.etag)
@@ -365,10 +367,10 @@ class DownloadEngineTest {
 
     @Test
     fun `pause during probe returns in under 500 ms`() = runBlocking {
-        origin.headDelayMs = 2_000L
+        origin.getDelayMs = 2_000L
         val handle = engine.start(request(segments = 4))
         withTimeout(5_000) {
-            while (origin.headCount.get() == 0) delay(5)
+            while (origin.getCount.get() == 0) delay(5)
         }
         val elapsed = measureTimeMillis {
             withTimeout(1_500) { handle.pause() }
@@ -380,10 +382,10 @@ class DownloadEngineTest {
 
     @Test
     fun `cancel during probe returns promptly and leaves no part file`() = runBlocking {
-        origin.headDelayMs = 2_000L
+        origin.getDelayMs = 2_000L
         val handle = engine.start(request(segments = 4))
         withTimeout(5_000) {
-            while (origin.headCount.get() == 0) delay(5)
+            while (origin.getCount.get() == 0) delay(5)
         }
         val elapsed = measureTimeMillis {
             withTimeout(1_500) { handle.cancel() }
