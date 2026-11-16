@@ -29,9 +29,17 @@ class BridgeValidationTest {
         assertNull(BridgeValidation.parseStart("""{"url":"file:///etc/passwd"}"""))
         assertNull(BridgeValidation.parseStart("""{"url":"javascript:alert(1)"}"""))
         assertNull(BridgeValidation.parseStart("""{"url":"https://example.com","segments":0}"""))
-        assertNull(BridgeValidation.parseStart("""{"url":"https://example.com","segments":17}"""))
+        assertNull(BridgeValidation.parseStart("""{"url":"https://example.com","segments":33}"""))
         assertNull(BridgeValidation.parseStart("""{"url":"https://example.com","segments":"eight"}"""))
         assertNull(BridgeValidation.parseStart("""not-json"""))
+    }
+
+    @Test
+    fun startPayloadAcceptsThirtyTwoSegmentsAndRejectsThirtyThree() {
+        val valid = """{"url":"https://example.com/a.bin","segments":32}"""
+        val invalid = """{"url":"https://example.com/a.bin","segments":33}"""
+        assertNotNull(BridgeValidation.parseStart(valid))
+        assertNull(BridgeValidation.parseStart(invalid))
     }
 
     @Test

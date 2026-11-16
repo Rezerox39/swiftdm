@@ -85,6 +85,17 @@ class DownloadEngineTest {
     }
 
     @Test
+    fun `thirty-two segments produce a byte-identical file`() = runBlocking {
+        val content = sampleBytes(4 * 1024 * 1024)
+        origin.content = content
+        val result = awaitTerminal(engine.start(request(segments = 32)))
+
+        assertEquals(DownloadStatus.Completed, result.status)
+        assertEquals(Sha256.of(content), Sha256.of(File(result.filePath)))
+        assertTrue("expected at least 32 ranged requests", origin.rangeHeaders.size >= 32)
+    }
+
+    @Test
     fun `server without range support falls back to a single stream`() = runBlocking {
         origin.supportsRanges = false
         val content = sampleBytes(768 * 1024)

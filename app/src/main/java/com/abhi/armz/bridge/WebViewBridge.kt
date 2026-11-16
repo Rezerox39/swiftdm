@@ -293,7 +293,7 @@ class WebViewBridge @Inject constructor(
         }
         if (patch.has("defaultSegments")) {
             val value = patch.get("defaultSegments").asInt
-            require(value in 1..16)
+            require(value in 1..32)
             next = next.copy(defaultSegments = value)
         }
         if (patch.has("speedLimitBytesPerSecond")) {

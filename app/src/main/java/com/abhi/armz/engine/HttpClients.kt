@@ -9,11 +9,11 @@ import java.util.concurrent.TimeUnit
 /**
  * Shared HTTP stack for the download engine. A single client is reused across sessions so the
  * connection pool and dispatcher stay warm; per-host limits are raised above the default of 5 so
- * eight parallel segments are not queued behind each other.
+ * parallel segments are not queued behind each other.
  */
 object HttpClients {
 
-    const val DefaultMaxSegments: Int = 16
+    const val DefaultMaxSegments: Int = 32
 
     fun downloadClient(maxConcurrentRequests: Int = DefaultMaxSegments): OkHttpClient {
         val concurrency = maxConcurrentRequests.coerceIn(1, 64)

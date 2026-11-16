@@ -880,7 +880,7 @@ internal class DownloadSession(
     }
 
     private companion object {
-        const val BufferSize: Int = 64 * 1024
+        const val BufferSize: Int = 256 * 1024
         const val MinSplitBytes: Long = 1L * 1024L * 1024L
         const val TelemetryIntervalMs: Long = 200L
         const val CheckpointIntervalMs: Long = 500L
