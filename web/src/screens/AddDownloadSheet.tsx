@@ -4,18 +4,12 @@ import { AlertCircleIcon, Link01Icon } from '@hugeicons/core-free-icons';
 import { FileGlyph } from '../components/FileGlyph';
 import { Sheet } from '../components/Sheet';
 import { fileNameFromUrl, hostFromUrl, isHttpUrl } from '../lib/format';
+import { SEGMENT_PRESETS, clampSegments } from '../lib/segments';
 import { useArmzSettings, useArmzStore } from '../store/useArmzStore';
 import Stepper, { Step } from '../reactbits/Stepper';
 
 interface AddDownloadSheetProps {
   onClose: () => void;
-}
-
-const SEGMENT_OPTIONS = [4, 8, 12, 16];
-
-function clampSegments(value: number): number {
-  if (!Number.isFinite(value)) return 16;
-  return Math.max(1, Math.min(16, Math.round(value)));
 }
 
 export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
@@ -106,13 +100,13 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
         <Step title="Link" description="Direct file URL">
           <div>
             <div className="flex items-center justify-between gap-3">
-              <label htmlFor="armz-url" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              <label htmlFor="armz-url" className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/40">
                 File link
               </label>
               <button
                 type="button"
                 onClick={() => void paste()}
-                className="h-8 rounded-full border border-white/[0.1] bg-white/[0.045] px-3 text-[11.5px] font-semibold text-white/65 transition active:scale-95 active:bg-white/[0.09]"
+                className="h-11 rounded-full border border-white/[0.1] bg-white/[0.045] px-4 text-[12px] font-semibold text-white/70 transition active:scale-95 active:bg-white/[0.09]"
               >
                 Paste
               </button>
@@ -154,12 +148,12 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
               />
             </div>
 
-            <p className="mt-2 text-[11.5px] leading-4 text-white/30">
+            <p className="mt-2 text-[12px] leading-4 text-white/30">
               Direct links only. Regular web pages will not work.
             </p>
 
             {trimmed && !valid ? (
-              <p className="mt-2 flex items-start gap-1.5 text-[11.5px] leading-4 text-amber-300/75">
+              <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-4 text-amber-300/75">
                 <HugeiconsIcon icon={AlertCircleIcon} size={13} strokeWidth={2} className="mt-0.5 shrink-0" />
                 Keep typing — the link needs a host and an http or https scheme.
               </p>
@@ -170,7 +164,7 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
                 <FileGlyph fileName={fileName} active />
                 <div className="min-w-0">
                   <p className="truncate text-[13px] font-medium text-white/80">{fileName}</p>
-                  <p className="mt-0.5 truncate text-[11px] text-white/35">{host}</p>
+                  <p className="mt-0.5 truncate text-[12px] text-white/35">{host}</p>
                 </div>
               </div>
             ) : null}
@@ -191,7 +185,7 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
                 <FileGlyph fileName={fileName} active />
                 <div className="min-w-0">
                   <p className="truncate text-[13.5px] font-semibold text-white/85">{fileName}</p>
-                  <p className="mt-0.5 truncate text-[11.5px] text-white/40">{host || 'Direct download'}</p>
+                  <p className="mt-0.5 truncate text-[12px] text-white/40">{host || 'Direct download'}</p>
                 </div>
               </div>
             </div>
@@ -199,22 +193,22 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
             <div className="mt-5 flex items-end justify-between gap-3">
               <div>
                 <p className="text-[13px] font-semibold text-white/85">Parallel connections</p>
-                <p className="mt-1 text-[11.5px] leading-4 text-white/40">
+                <p className="mt-1 text-[12px] leading-4 text-white/40">
                   More connections can improve speed. Lower it if the server throttles.
                 </p>
               </div>
               <span className="shrink-0 text-[18px] font-semibold tabular-nums text-white">{segments}</span>
             </div>
 
-            <div className="mt-3 grid grid-cols-4 gap-1.5">
-              {SEGMENT_OPTIONS.map((value) => {
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {SEGMENT_PRESETS.map((value) => {
                 const selected = segments === value;
                 return (
                   <button
                     key={value}
                     type="button"
                     onClick={() => setSegments(value)}
-                    className={`h-10 rounded-xl border text-[13px] font-semibold transition active:scale-[0.97] ${
+                    className={`h-11 rounded-xl border text-[13px] font-semibold transition active:scale-[0.97] ${
                       selected
                         ? 'border-white bg-white text-black'
                         : 'border-white/[0.08] bg-white/[0.035] text-white/55 active:bg-white/[0.07]'
@@ -226,8 +220,8 @@ export function AddDownloadSheet({ onClose }: AddDownloadSheetProps) {
               })}
             </div>
 
-            <p className="mt-2 text-[11px] leading-4 text-white/30">
-              16 is the fastest default on most networks. Your choice becomes the new default.
+            <p className="mt-2 text-[12px] leading-4 text-white/30">
+              16 is the default; 32 is the maximum and uses more memory and battery. Your choice becomes the new default.
             </p>
 
             {error ? (

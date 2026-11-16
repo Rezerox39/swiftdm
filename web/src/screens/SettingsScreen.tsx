@@ -2,6 +2,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Download01Icon } from '@hugeicons/core-free-icons';
 import { Sheet } from '../components/Sheet';
 import { APP_VERSION } from '../lib/app';
+import { SEGMENT_PRESETS } from '../lib/segments';
 import { useArmzSettings, useArmzStore } from '../store/useArmzStore';
 import Magnet from '../reactbits/Magnet';
 import SpringCheck from '../reactbits/SpringCheck';
@@ -9,8 +10,6 @@ import SpringCheck from '../reactbits/SpringCheck';
 interface SettingsScreenProps {
   onClose: () => void;
 }
-
-const SEGMENT_OPTIONS = [4, 8, 12, 16];
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -66,7 +65,7 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
                   </span>
                   <div className="min-w-0">
                     <p className="text-[13.5px] font-semibold text-white/85">Parallel connections</p>
-                    <p className="mt-1 text-[11.5px] leading-4 text-white/38">
+                    <p className="mt-1 text-[12px] leading-4 text-white/38">
                       More connections can improve speed. Use fewer on weak servers.
                     </p>
                   </div>
@@ -76,15 +75,15 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
                 </span>
               </div>
 
-              <div className="mt-4 grid grid-cols-4 gap-1.5">
-                {SEGMENT_OPTIONS.map((value) => {
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {SEGMENT_PRESETS.map((value) => {
                   const selected = settings.defaultSegments === value;
                   return (
                     <button
                       key={value}
                       type="button"
                       onClick={() => chooseSegments(value)}
-                      className={`h-9 rounded-xl border text-[12.5px] font-semibold transition active:scale-[0.97] ${
+                      className={`h-11 rounded-xl border text-[12.5px] font-semibold transition active:scale-[0.97] ${
                         selected
                           ? 'border-white bg-white text-black'
                           : 'border-white/[0.08] bg-white/[0.035] text-white/55 active:bg-white/[0.07]'
@@ -97,8 +96,8 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
               </div>
             </div>
           </div>
-          <p className="mt-2 px-1 text-[11px] leading-4 text-white/30">
-            New downloads use this value. Files smaller than 1 MB still use a single connection.
+          <p className="mt-2 px-1 text-[12px] leading-4 text-white/30">
+            New downloads use this value. 32 is the maximum and uses more memory and battery; files smaller than 1 MB still use one connection.
           </p>
         </section>
 
@@ -108,7 +107,7 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[13.5px] font-semibold text-white/85">Reduce motion</p>
-                <p className="mt-1 text-[11.5px] leading-4 text-white/38">
+                <p className="mt-1 text-[12px] leading-4 text-white/38">
                   Pause the ambient glow and soften interface transitions.
                 </p>
               </div>
@@ -140,10 +139,10 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
               </div>
               <div>
                 <p className="text-[14px] font-semibold text-white/90">AMz</p>
-                <p className="mt-0.5 text-[11.5px] text-white/38">Version {APP_VERSION} · com.abhi.armz</p>
+                <p className="mt-0.5 text-[12px] text-white/38">Version {APP_VERSION} · com.abhi.armz</p>
               </div>
             </div>
-            <p className="border-t border-white/[0.06] px-4 py-3 text-[11.5px] leading-4 text-white/30">
+            <p className="border-t border-white/[0.06] px-4 py-3 text-[12px] leading-4 text-white/30">
               Motion components by React Bits, used under the MIT + Commons Clause license.
             </p>
           </div>

@@ -17,7 +17,14 @@ import {
 } from '@hugeicons/core-free-icons';
 import { FileGlyph } from '../components/FileGlyph';
 import { Sheet } from '../components/Sheet';
-import { fileNameFromUrl, formatBytes, formatEta, formatSpeed, hostFromUrl } from '../lib/format';
+import {
+  fileNameFromUrl,
+  formatBytes,
+  formatEta,
+  formatSpeed,
+  hostFromUrl,
+  stabilizeSpeed,
+} from '../lib/format';
 import { toDownloadRow, type DownloadRow } from '../lib/status';
 import { usePerfTier } from '../lib/usePerfTier';
 import { useSheetBack } from '../lib/useSheetBack';
@@ -90,7 +97,8 @@ function statusText(row: DownloadRow): string {
 function statText(row: DownloadRow): string {
   if (row.status === 'Downloading' && row.bytesPerSecond > 0) {
     const eta = row.etaSeconds != null ? formatEta(row.etaSeconds) : '';
-    return eta ? `${formatSpeed(row.bytesPerSecond)} · ${eta}` : formatSpeed(row.bytesPerSecond);
+    const speed = formatSpeed(stabilizeSpeed(row.bytesPerSecond));
+    return eta ? `${speed} · ${eta}` : speed;
   }
   if (row.status === 'Finalizing') return `${Math.round(progressOf(row) * 100)}%`;
   if (row.isDone) return 'Saved';
@@ -131,7 +139,7 @@ function IconButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/[0.09] bg-white/[0.035] text-white/65 transition active:scale-95 active:bg-white/[0.08] disabled:opacity-30"
+      className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/[0.09] bg-white/[0.035] text-white/65 transition active:scale-95 active:bg-white/[0.08] disabled:opacity-30"
     >
       {children}
     </button>
@@ -171,7 +179,7 @@ function DownloadCard({ row, onOpenActions }: { row: DownloadRow; onOpenActions:
 
   return (
     <li
-      className={`relative overflow-hidden rounded-[22px] border p-3.5 ${
+      className={`relative overflow-hidden rounded-[22px] border p-4 ${
         row.isActive
           ? 'border-white/[0.11] bg-[#0B0C10]'
           : 'border-white/[0.065] bg-[#09090B]'
@@ -186,17 +194,17 @@ function DownloadCard({ row, onOpenActions }: { row: DownloadRow; onOpenActions:
               <p className="line-clamp-2 text-[14.5px] font-semibold leading-[1.28] tracking-[-0.015em] text-white">
                 {filename}
               </p>
-              <p className="mt-1 truncate text-[11.5px] text-white/40">{sizeText(row)}</p>
+              <p className="mt-1 truncate text-[12px] text-white/40">{sizeText(row)}</p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-2">
               {primary ? (
                 <button
                   type="button"
                   onClick={primary.onClick}
                   aria-label={primary.label}
                   title={primary.label}
-                  className={`grid h-8 w-8 place-items-center rounded-full border transition active:scale-95 ${
+                  className={`grid h-11 w-11 place-items-center rounded-full border transition active:scale-95 ${
                     row.canOpen
                       ? 'border-white/15 bg-white text-black'
                       : 'border-white/[0.1] bg-white/[0.05] text-white/70'
@@ -210,7 +218,7 @@ function DownloadCard({ row, onOpenActions }: { row: DownloadRow; onOpenActions:
                 onClick={() => onOpenActions(row.id)}
                 aria-label={`Options for ${filename}`}
                 title="Options"
-                className="grid h-8 w-8 place-items-center rounded-full text-white/35 transition active:scale-95 active:bg-white/[0.07] active:text-white/70"
+                className="grid h-11 w-11 place-items-center rounded-full text-white/35 transition active:scale-95 active:bg-white/[0.07] active:text-white/70"
               >
                 <HugeiconsIcon icon={MoreVerticalIcon} size={17} strokeWidth={1.9} />
               </button>
@@ -241,10 +249,10 @@ function DownloadCard({ row, onOpenActions }: { row: DownloadRow; onOpenActions:
             <div className="mt-2 flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-1.5">
                 <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotTone(row)}`} />
-                <span className="truncate text-[11.5px] text-white/45">{statusText(row)}</span>
+                <span className="truncate text-[12px] text-white/45">{statusText(row)}</span>
               </div>
               <span
-                className={`shrink-0 text-[11.5px] tabular-nums ${
+                className={`shrink-0 text-[12px] tabular-nums ${
                   failed ? 'text-rose-300/80' : row.isActive ? 'text-white/65' : 'text-white/40'
                 }`}
               >
@@ -253,7 +261,7 @@ function DownloadCard({ row, onOpenActions }: { row: DownloadRow; onOpenActions:
             </div>
 
             {failed ? (
-              <div className="mt-2 flex items-start gap-1.5 text-[11.5px] leading-4 text-rose-300/75">
+              <div className="mt-2 flex items-start gap-1.5 text-[12px] leading-4 text-rose-300/75">
                 <HugeiconsIcon icon={AlertCircleIcon} size={13} strokeWidth={2} className="mt-0.5 shrink-0" />
                 <p className="line-clamp-2">{row.error || 'The transfer was interrupted. Retry to continue.'}</p>
               </div>
@@ -348,7 +356,7 @@ function EmptyState({
             <button
               type="button"
               onClick={onShowAll}
-              className="inline-flex h-10 items-center rounded-full border border-white/[0.1] bg-white/[0.04] px-4 text-[13px] font-semibold text-white/70 transition active:scale-[0.98] active:bg-white/[0.08]"
+              className="inline-flex h-11 items-center rounded-full border border-white/[0.1] bg-white/[0.04] px-4 text-[13px] font-semibold text-white/70 transition active:scale-[0.98] active:bg-white/[0.08]"
             >
               Show all downloads
             </button>
@@ -376,12 +384,12 @@ function ActionRow({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition active:bg-white/[0.055] ${
+      className={`flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition active:bg-white/[0.055] ${
         destructive ? 'text-rose-300' : 'text-white/80'
       }`}
     >
       <span
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${
           destructive
             ? 'border-rose-300/15 bg-rose-400/[0.07] text-rose-300'
             : 'border-white/[0.07] bg-white/[0.04] text-white/60'
@@ -391,7 +399,7 @@ function ActionRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[13.5px] font-medium">{label}</span>
-        {detail ? <span className="mt-0.5 block truncate text-[11.5px] text-white/35">{detail}</span> : null}
+        {detail ? <span className="mt-0.5 block truncate text-[12px] text-white/35">{detail}</span> : null}
       </span>
     </button>
   );
@@ -486,7 +494,9 @@ export function DownloadsScreen({ activeFilter, onOpenAdd, onOpenSettings }: Dow
                     {activeCount} active
                   </span>
                   {activeSpeed > 0 ? (
-                    <span className="tabular-nums text-white/30">{formatSpeed(activeSpeed)}</span>
+                    <span className="tabular-nums text-white/30">
+                      {formatSpeed(stabilizeSpeed(activeSpeed))}
+                    </span>
                   ) : null}
                 </>
               ) : null}
@@ -498,7 +508,7 @@ export function DownloadsScreen({ activeFilter, onOpenAdd, onOpenSettings }: Dow
             onClick={onOpenAdd}
             aria-label="Add download"
             title="Add download"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-black shadow-[0_10px_28px_rgba(255,255,255,0.13)] transition active:scale-95"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-black shadow-[0_10px_28px_rgba(255,255,255,0.13)] transition active:scale-95"
           >
             <HugeiconsIcon icon={PlusSignIcon} size={20} strokeWidth={2.1} />
           </button>
@@ -514,7 +524,7 @@ export function DownloadsScreen({ activeFilter, onOpenAdd, onOpenSettings }: Dow
                   key={filter}
                   type="button"
                   onClick={() => setActiveFilter(filter)}
-                  className={`flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] text-[12px] font-semibold transition ${
+                  className={`flex h-11 flex-1 items-center justify-center gap-1.5 rounded-[10px] text-[12px] font-semibold transition ${
                     selected ? 'bg-white text-black shadow-sm' : 'text-white/50 active:bg-white/[0.05]'
                   }`}
                 >
@@ -649,7 +659,7 @@ export function DownloadsScreen({ activeFilter, onOpenAdd, onOpenSettings }: Dow
           >
             <div className="rounded-2xl border border-rose-300/15 bg-rose-400/[0.055] p-4">
               <p className="truncate text-[13px] font-medium text-white/80">{displayName(menuRow)}</p>
-              <p className="mt-1 text-[11.5px] text-white/40">{sizeText(menuRow)}</p>
+              <p className="mt-1 text-[12px] text-white/40">{sizeText(menuRow)}</p>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button

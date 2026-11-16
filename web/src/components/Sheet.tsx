@@ -59,7 +59,7 @@ export function Sheet({ eyebrow, title, subtitle, onClose, children, footer, ari
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.05] text-white/65 transition active:scale-95 active:bg-white/10"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.05] text-white/65 transition active:scale-95 active:bg-white/10"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={17} strokeWidth={1.8} />
               </button>

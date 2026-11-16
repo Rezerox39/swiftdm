@@ -8,6 +8,12 @@ export function formatBytes(bytes: number): string {
   return `${value >= 100 || exponent === 0 ? Math.round(value) : value.toFixed(1)} ${units[exponent]}`;
 }
 
+export function stabilizeSpeed(bytesPerSecond: number): number {
+  if (!Number.isFinite(bytesPerSecond) || bytesPerSecond <= 0) return 0;
+  const step = bytesPerSecond >= 10 * 1024 * 1024 ? 1024 * 1024 : 100 * 1024;
+  return Math.round(bytesPerSecond / step) * step;
+}
+
 export function formatSpeed(bytesPerSecond: number): string {
   return `${formatBytes(bytesPerSecond)}/s`;
 }
