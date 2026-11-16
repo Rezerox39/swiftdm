@@ -127,7 +127,7 @@ class DownloadEngineTest {
 
         assertEquals(DownloadStatus.Completed, result.status)
         assertEquals(Sha256.of(content), Sha256.of(File(result.filePath)))
-        assertEquals("503, 503, then 206", 3, origin.getCount.get())
+        assertEquals("probe retries consume two 503s, then one segment GET", 4, origin.getCount.get())
         assertTrue("expected backoff of at least ~60 ms, was $elapsedMs", elapsedMs >= 50L)
     }
 
@@ -315,7 +315,7 @@ class DownloadEngineTest {
         assertEquals(
             "only the gap is requested",
             listOf("bytes=$segmentSize-${2 * segmentSize - 1}"),
-            origin.rangeHeaders.toList(),
+            origin.rangeHeaders.filterNot { it == "bytes=0-0" }.toList(),
         )
     }
 
