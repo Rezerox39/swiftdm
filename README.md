@@ -2,11 +2,12 @@
 
 [![Build APK](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml/badge.svg)](https://github.com/Rezerox39/swiftdm/actions/workflows/build-apk.yml)
 
-A native Android download manager with segmented, resumable transfers and an
-interface built around the Apple Human Interface Guidelines: large titles,
-grouped inset cards, translucent bars, spring motion and full dark mode.
+A native Android download manager with segmented, resumable transfers and a
+React Bits interface rendered inside a single edge-to-edge WebView. The native
+engine, foreground service, notifications, queue and network layers stay in
+Kotlin; the U1 UI is React 18 + TypeScript + Tailwind built with Vite.
 
-Kotlin · Jetpack Compose · Material 3 · Hilt · Room · OkHttp ·
+Kotlin · React 18 · TypeScript · Tailwind CSS · Vite · Hilt · Room · OkHttp ·
 Coroutines/Flow · Timber.
 
 
@@ -20,7 +21,8 @@ Coroutines/Flow · Timber.
 | P0 | Scaffold, Gradle + version catalog, manifest/permissions, Hilt, design tokens, placeholder home, CI | shipped |
 | P1 | Segmented engine: probe, split, write at offsets, retry, resume, Room, debug lab | shipped |
 | P2 | Finalization, public `Downloads/ARMz`, real Downloads UI, splash/intro, Engine Lab diagnostics | shipped |
-| P3 | Foreground service, queue, notifications, network policy, speed limiter | planned |
+| U1 | React Bits web UI, Vite build into Android assets, typed JSON WebView bridge, U1 splash/insets/IME | in review |
+| P3 | Foreground service, queue, notifications, network policy, speed limiter | in progress |
 | P4 | Share/view intents, clipboard capture, per-download headers | planned |
 | P5 | Detail screen, Settings, in-app browser | planned |
 | P6 | Polish, signed release, GitHub Release | planned |
@@ -37,15 +39,19 @@ Coroutines/Flow · Timber.
 The APK is debug-signed by the CI runner, so it is installable but not suitable
 for a Play Store upload. Signing for a store build arrives with P6.
 
-## Engine Lab (P2)
+## U1 web interface
 
-Debug builds expose **Downloads → Engine Lab**, a test bench for the real
-engine:
+The U1 UI lives in `web/` and is built into `app/src/main/assets/web/` before
+Gradle runs. It uses React Bits motion components (Aurora, BlurText, CountUp,
+Magnet, SpringCheck and Stepper) under MIT + Commons Clause; attribution is in
+`THIRD_PARTY_NOTICES.md` and in the in-app Settings About row.
 
-- edit the URL (default: a 100 MB file with ETag and byte ranges),
-- choose 1–16 segments with the stepper,
-- Start / Pause / Resume / Cancel,
-- watch live speed, ETA, per-segment ranges and the final SHA-256.
+The WebView loads the built app from
+`https://appassets.androidplatform.net/assets/web/index.html`. JavaScript talks
+to Kotlin only through JSON strings on `window.ARMz`; Kotlin validates every
+input, and native snapshots/settings arrive through `window.__armz_emit` at a
+200 ms maximum cadence. The Android 12 splash is held until the web app calls
+`ARMz.ready()` with a 2 second fallback.
 
 Paused transfers keep their partial bytes and resume by validating ETag /
 Last-Modified; changed content restarts from zero. Finished files are assembled,
@@ -53,13 +59,19 @@ coverage-verified, fsynced, SHA-256 checked and published into the public
 `Downloads/ARMz` collection. Only after the publish succeeds does the row become
 `Completed`.
 
-The 1-vs-8-segment network benchmark runs from **Actions → Engine benchmark**,
-which prints measured MiB/s for both configurations into the workflow log.
-
 ## Build
 
-CI runs on every push to `main` and through **Actions → Build APK → Run
-workflow**. Locally, with JDK 17 and the Android SDK installed:
+CI runs the web build and Vitest suite first, then the JVM tests and Android
+assembly. Locally, with Node 20:
+
+```bash
+cd web
+npm ci
+npm run build
+npm run test
+```
+
+With JDK 17 and the Android SDK installed:
 
 ```bash
 ./gradlew assembleDebug
@@ -94,10 +106,12 @@ Inter and the Material Symbols subset are bundled with their licenses in
 Single `app` module, clean layering:
 
 ```
-ui/        Compose screens, components, theme, navigation, debug Engine Lab
+web/       Vite + React 18 + TypeScript + Tailwind UI and Vitest tests
+bridge/    JSON DTOs, Kotlin validation and the WebView JavascriptInterface
 data/      Room entities/DAO/database and the DownloadRepository (P1+)
 di/        Hilt modules (OkHttp, Room, engine)
 engine/    pure-Kotlin/JVM probe, segmenter, writer, retry, resume, speed meter
+ui/theme/  retained native design tokens for the splash/fallback surface
 ```
 
 The engine has no Android imports: it is unit-tested on the JVM with

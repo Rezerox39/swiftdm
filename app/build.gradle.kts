@@ -14,8 +14,8 @@ android {
         applicationId = "com.abhi.armz"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.0-p2"
+        versionCode = 4
+        versionName = "0.4.0-u1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.dynamicanimation)
+    implementation(libs.androidx.webkit)
+    implementation(libs.gson)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
