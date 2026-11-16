@@ -47,6 +47,7 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex min-h-screen items-end justify-center bg-black/70 px-4 backdrop-blur-xl"
+      style={{ paddingBottom: 'max(var(--sab), var(--kb))' }}
       role="dialog"
       aria-modal="true"
     >

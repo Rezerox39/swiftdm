@@ -61,7 +61,15 @@ export default function App() {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black font-sans text-[#F2F2F7]">
+    <div
+      className="relative h-full w-full overflow-hidden bg-black font-sans text-[#F2F2F7]"
+      style={{
+        paddingTop: 'var(--sat)',
+        paddingBottom: 'var(--sab)',
+        paddingLeft: 'var(--sal)',
+        paddingRight: 'var(--sar)',
+      }}
+    >
       <div className="relative h-full w-full">
         <DownloadsScreen
           activeFilter={activeFilter}

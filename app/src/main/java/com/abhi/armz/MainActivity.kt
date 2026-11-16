@@ -203,10 +203,7 @@ class MainActivity : ComponentActivity() {
             override fun shouldOverrideUrlLoading(
                 view: WebView,
                 request: WebResourceRequest,
-            ): Boolean {
-                val scheme = request.url.scheme
-                return request.url.host != ASSET_HOST || (scheme != "https" && scheme != "http")
-            }
+            ): Boolean = request.url.host != ASSET_HOST || request.url.scheme != "https"
 
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
