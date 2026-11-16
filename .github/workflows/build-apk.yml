@@ -107,9 +107,11 @@ jobs:
             - Reworked U1 WebView UI: AMOLED-black hierarchy, clearer download rows, filter
               counts, bulk controls, action sheets, toasts, a two-step Add Download flow, and
               settings that only expose working controls.
-            - Faster starts: no duplicate URL probe, persisted parallel-connection setting
-              (16 by default), computed ETA, and clearer live speed/remaining-time readouts.
-            - Launcher, adaptive and monochrome icons now show a white AMz wordmark on black.
+            - Faster transfers: 256 KiB segment buffers, up to 32 connections (16 default),
+              a single ranged-GET probe that saves one round trip, and computed ETA.
+            - UI polish: 44-48 px touch targets, 8 px action gaps, >=12 px body text, six
+              connection presets, and stabilized speed/remaining-time readouts.
+            - Launcher, adaptive and monochrome icons show a white AMz wordmark on black.
             - React 18 + TypeScript + Tailwind UI built with Vite and bundled into the APK.
             - React Bits motion components (Aurora, BlurText, CountUp, Magnet, SpringCheck,
               Stepper), used under MIT + Commons Clause; see `THIRD_PARTY_NOTICES.md`.
