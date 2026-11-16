@@ -31,6 +31,31 @@ export default function App() {
     window.ARMz?.ready();
   }, []);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const state = window.history.state as { armzOverlay?: boolean } | null;
+      if (!state?.armzOverlay) {
+        const store = useArmzStore.getState();
+        if (store.addOpen) store.setAddOpen(false);
+        if (store.settingsOpen) store.setSettingsOpen(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const anyOverlayOpen = addOpen || settingsOpen;
+    const hasOverlayEntry = Boolean(
+      (window.history.state as { armzOverlay?: boolean } | null)?.armzOverlay,
+    );
+    if (anyOverlayOpen && !hasOverlayEntry) {
+      window.history.pushState({ armzOverlay: true }, '');
+    } else if (!anyOverlayOpen && hasOverlayEntry) {
+      window.history.back();
+    }
+  }, [addOpen, settingsOpen]);
+
   if (!introCompleted) {
     return <LaunchScreen onFinished={() => undefined} />;
   }
