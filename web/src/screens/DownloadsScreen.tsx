@@ -3,6 +3,7 @@ import { formatBytes, formatEta, formatSpeed } from '../lib/format';
 import { toDownloadRow, type DownloadRow } from '../lib/status';
 import Aurora from '../reactbits/Aurora';
 import BlurText from '../reactbits/BlurText';
+import CountUp from '../reactbits/CountUp';
 import Magnet from '../reactbits/Magnet';
 import SpringCheck from '../reactbits/SpringCheck';
 import type { DownloadStatus } from '../bridge/types';
@@ -206,6 +207,15 @@ export function DownloadsScreen({ activeFilter, onOpenAdd, onOpenSettings }: Dow
             trigger="load"
             easing="easeOut"
           />
+          <p className="mt-1 flex items-baseline gap-2 text-[12px] text-white/45">
+            <CountUp
+              to={downloads.length}
+              duration={0.6}
+              trigger="load"
+              className="text-[18px] font-semibold text-white/80"
+            />
+            <span>in library</span>
+          </p>
           <div className="mt-5 flex items-center justify-between gap-3">
             <div className="flex rounded-full bg-white/10 p-1">
               {FILTERS.map((filter) => (
