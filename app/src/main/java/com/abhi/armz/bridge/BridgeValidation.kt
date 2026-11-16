@@ -15,9 +15,15 @@ object BridgeValidation {
         val url = objectValue.string("url")?.trim().orEmpty()
         if (!isHttpUrl(url)) return null
 
-        val segments = objectValue.get("segments")
-            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }
-            ?.asInt
+        val segmentsElement = objectValue.get("segments")
+        val segments = if (segmentsElement == null) {
+            null
+        } else {
+            if (!segmentsElement.isJsonPrimitive || !segmentsElement.asJsonPrimitive.isNumber) {
+                return null
+            }
+            segmentsElement.asInt
+        }
         if (segments != null && segments !in 1..16) return null
 
         val headers = when {
