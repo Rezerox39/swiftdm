@@ -58,7 +58,7 @@ jobs:
           LIBREFM_SECRET: ${{ secrets.LIBREFM_SECRET || '' }}
           DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID || '' }}
         run: |
-          ./gradlew test assembleArm64FossDebug --no-configuration-cache --console=plain --warning-mode summary
+          ./gradlew :amz-downloader:testDebugUnitTest :app:testArm64FossDebugUnitTest assembleArm64FossDebug --no-configuration-cache --console=plain --warning-mode summary --max-workers=2
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
