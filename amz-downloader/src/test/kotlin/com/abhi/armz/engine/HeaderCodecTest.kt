@@ -19,7 +19,7 @@ class HeaderCodecTest {
     @Test
     fun `empty headers encode to null`() {
         assertNull(HeaderCodec.encode(emptyMap()))
-        assertEquals(emptyMap(), HeaderCodec.decode(null))
-        assertEquals(emptyMap(), HeaderCodec.decode(""))
+        assertEquals(emptyMap<String, String>(), HeaderCodec.decode(null))
+        assertEquals(emptyMap<String, String>(), HeaderCodec.decode(""))
     }
 }
