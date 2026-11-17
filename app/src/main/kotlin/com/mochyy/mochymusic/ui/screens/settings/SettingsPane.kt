@@ -40,6 +40,7 @@ const val SettingsListRoute = "mochy_settings"
 // the pages that open beside the list on a wide screen; anything else (an artist, the player's equalizer from home) takes the whole width
 val SettingsPaneRoutes = setOf(
     SettingsListRoute,
+    com.mochyy.mochymusic.ui.screens.amz.AmzDownloadsRoute,
     "audio_lab",
     "equalizer",
     "audio_fx",

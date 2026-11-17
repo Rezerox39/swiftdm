@@ -404,6 +404,10 @@ fun NavGraphBuilder.navigationBuilder(
         com.mochyy.mochymusic.ui.screens.settings.AppBehaviourSettingsScreen(navController = navController)
     }
 
+    composable(com.mochyy.mochymusic.ui.screens.amz.AmzDownloadsRoute) {
+        com.mochyy.mochymusic.ui.screens.amz.AmzDownloadsScreen(navController = navController)
+    }
+
     composable(com.mochyy.mochymusic.ui.screens.settings.PlaybackSettingsRoute) {
         com.mochyy.mochymusic.ui.screens.settings.PlaybackSettingsScreen(navController = navController)
     }

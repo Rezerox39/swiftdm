@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="armz_downloads_title">AMz downloads</string>
+    <string name="armz_downloads_url">Download URL</string>
+    <string name="armz_downloads_add">Start download</string>
+    <string name="armz_downloads_segments">Segments</string>
+    <string name="armz_downloads_empty">No downloads yet</string>
+    <string name="armz_downloads_pause">Pause</string>
+    <string name="armz_downloads_resume">Resume</string>
+    <string name="armz_downloads_cancel">Cancel</string>
+    <string name="armz_downloads_remove">Remove</string>
+    <string name="armz_downloads_invalid_url">Enter an http(s) URL</string>
+    <string name="armz_downloads_resume_failed">Could not resume that download</string>
+    <string name="armz_downloads_action_failed">Could not %1$s that download</string>
+    <string name="armz_downloads_speed">%1$d B/s</string>
+</resources>
