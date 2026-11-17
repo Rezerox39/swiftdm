@@ -16,6 +16,18 @@ interface DownloadDao {
     @Query("SELECT * FROM downloads WHERE id = :id")
     suspend fun find(id: String): DownloadEntity?
 
+    @Query(
+        "SELECT * FROM downloads WHERE status IN ('Probing', 'Downloading', 'Finalizing') " +
+            "ORDER BY createdAt ASC"
+    )
+    suspend fun interrupted(): List<DownloadEntity>
+
+    @Query(
+        "UPDATE downloads SET status = :status, errorMessage = NULL, updatedAt = :updatedAt " +
+            "WHERE id = :id"
+    )
+    suspend fun markActive(id: String, status: String, updatedAt: Long)
+
     @Query("SELECT * FROM download_segments WHERE downloadId = :id ORDER BY segmentIndex")
     suspend fun segments(id: String): List<SegmentEntity>
 

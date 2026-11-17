@@ -22,6 +22,10 @@ data class DownloadEntity(
     val errorMessage: String?,
     val contentUri: String? = null,
     val mimeType: String? = null,
+    /** Encoded Cookie/User-Agent/Referer captured from the in-app browser, if any. */
+    val requestHeaders: String? = null,
+    /** Where the link was added: manual, browser, share, etc. */
+    val source: String? = null,
     val finalizeStep: String? = null,
     val finalizeProgress: Float = 0f,
     val createdAt: Long,

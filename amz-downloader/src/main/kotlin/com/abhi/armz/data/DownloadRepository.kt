@@ -14,6 +14,7 @@ import com.abhi.armz.engine.DownloadHandle
 import com.abhi.armz.engine.DownloadRequest
 import com.abhi.armz.engine.DownloadSnapshot
 import com.abhi.armz.engine.DownloadStatus
+import com.abhi.armz.engine.HeaderCodec
 import com.abhi.armz.engine.ProbeResult
 import com.abhi.armz.engine.LocalFilePublisher
 import com.abhi.armz.engine.PublishedFile
@@ -64,6 +65,8 @@ class DownloadRepository @Inject constructor(
         segments: Int,
         fileName: String?,
         mimeType: String?,
+        headers: Map<String, String> = emptyMap(),
+        source: String? = null,
     ): DownloadHandle {
         val request = DownloadRequest(
             id = UUID.randomUUID().toString(),
@@ -72,6 +75,7 @@ class DownloadRepository @Inject constructor(
             segments = segments,
             fileNameOverride = fileName,
             mimeTypeHint = mimeType,
+            headers = headers,
         )
         persistSnapshot(
             DownloadSnapshot(
@@ -92,6 +96,8 @@ class DownloadRepository @Inject constructor(
                 sha256 = null,
                 error = null,
             ),
+            requestHeaders = HeaderCodec.encode(headers),
+            source = source,
         )
         return start(request)
     }
@@ -127,6 +133,7 @@ class DownloadRepository @Inject constructor(
             destinationDir = directory,
             segments = record.segmentCount,
             fileNameOverride = record.fileName.takeIf { it.isNotBlank() },
+            headers = HeaderCodec.decode(record.requestHeaders),
             mimeTypeHint = record.mimeType,
             resume = if (exists) {
                 ResumeState(
@@ -141,6 +148,18 @@ class DownloadRepository @Inject constructor(
             },
         )
         return start(request)
+    }
+
+    /** Rows left active by a killed process. The app controller resumes these after restart. */
+    suspend fun interrupted(): List<DownloadEntity> = dao.interrupted()
+
+    /** Marks a row active before the service starts, so it cannot stop on a stale paused status. */
+    suspend fun markActive(id: String) = dao.markActive(id, "Probing", System.currentTimeMillis())
+
+    /** Removes only the history row; the published download stays on the device. */
+    suspend fun deleteRecord(id: String) {
+        dao.deleteSegments(id)
+        dao.deleteDownload(id)
     }
 
     suspend fun delete(id: String) {
@@ -170,7 +189,11 @@ class DownloadRepository @Inject constructor(
         return File(external ?: File(context.filesDir, "Download"), "parts").apply { mkdirs() }
     }
 
-    private suspend fun persistSnapshot(snapshot: DownloadSnapshot) {
+    private suspend fun persistSnapshot(
+        snapshot: DownloadSnapshot,
+        requestHeaders: String? = null,
+        source: String? = null,
+    ) {
         val now = System.currentTimeMillis()
         database.withTransaction {
             val existing = dao.find(snapshot.id)
@@ -191,6 +214,8 @@ class DownloadRepository @Inject constructor(
                     errorMessage = snapshot.error?.message,
                     contentUri = snapshot.contentUri,
                     mimeType = snapshot.mimeType,
+                    requestHeaders = requestHeaders ?: existing?.requestHeaders,
+                    source = source ?: existing?.source,
                     finalizeStep = snapshot.finalizeStep?.name,
                     finalizeProgress = snapshot.finalizeProgress,
                     createdAt = existing?.createdAt ?: now,

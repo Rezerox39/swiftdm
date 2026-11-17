@@ -61,121 +61,20 @@ class App : Application(), SingletonImageLoader.Factory {
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
 
-    @Inject
-    lateinit var musicDatabase: com.mochyy.mochymusic.db.MusicDatabase
-
-    // only built once a tv is paired, it pulls in the downloads
-    @Inject
-    lateinit var phoneLink: dagger.Lazy<com.mochyy.mochymusic.link.phone.PhoneLinkHost>
-
     override fun onCreate() {
-        // before super, because that's where hilt builds the database and the player caches
-        com.mochyy.mochymusic.importer.transfer.TransferRestore.applyPending(this)
-        // the folders a move to another drive left behind, cleared once nothing has them open
-        com.mochyy.mochymusic.playback.StoragePlaces.cleanUpLeftovers(this)
         super.onCreate()
 
         AppLanguage.initialize(this)
         CrashHandler.install(this)
-
-        CipherDeobfuscator.initialize(this)
 
         if (BuildConfig.DEBUG || BuildConfig.BUILD_TYPE == "fast") {
             Timber.plant(Timber.DebugTree())
         }
 
         PreferencesCache.start(this, applicationScope)
-        // tokens saved before the vault existed are sealed on the first start after the update
-        applicationScope.launch(kotlinx.coroutines.Dispatchers.IO) { (dataStore as? com.mochyy.mochymusic.utils.SecretPreferences)?.sealLeftovers() }
-        com.mochyy.mochymusic.utils.NotRecommended.init(this)
-
+        // Only account/profile preferences are kept; no music, YouTube or player work starts.
         applicationScope.launch(Dispatchers.IO) {
-            try {
-                musicDatabase.query { purgeTimestampArtists() }
-            } catch (e: Exception) {
-                reportException(e)
-            }
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            // the plain 5 s crossfade used to be the default and onboarding's pick, and it never mixed a thing: anyone left on it moves to crossmix once
-            try {
-                if (dataStore.data.first()[CrossmixDefaultMovedKey] != true) {
-                    dataStore.edit { prefs ->
-                        if (prefs[CrossmixModeKey] == CrossmixMode.AUTO_CROSSFADE.name) prefs[CrossmixModeKey] = CrossmixMode.CROSSMIX.name
-                        prefs[CrossmixDefaultMovedKey] = true
-                    }
-                }
-            } catch (e: Exception) {
-                reportException(e)
-            }
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            // lyrics saved by older versions are cleared once, the first time 7.1.0 runs, so every
-            // song fetches them fresh. only the lyrics table is touched (songs, playlists, the
-            // library and the profile stay), and lyrics someone typed in or edited by hand are kept.
-            try {
-                if ((dataStore.data.first()[LyricsCacheWipeKey] ?: 0) < LyricsCacheWipeGeneration) {
-                    musicDatabase.clearFetchedLyrics(
-                        keepProviders = listOf(
-                            com.mochyy.mochymusic.viewmodels.LyricsMenuViewModel.USER_EDITED,
-                            "Manual",
-                        ),
-                    )
-                    dataStore.edit { it[LyricsCacheWipeKey] = LyricsCacheWipeGeneration }
-                }
-            } catch (e: Exception) {
-                reportException(e)
-            }
-        }
-
-        applicationScope.launch {
-            initializeSettings()
-            observeSettingsChanges()
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            // Boot BotGuard once a session id exists. Without a PoToken YouTube serves only a
-            // ~32 second preview window, and paying the engine's cold start inside the playback
-            // resolver stalls the first track instead.
-            val ready = kotlinx.coroutines.withTimeoutOrNull(60_000) {
-                while (YouTube.visitorData == null && YouTube.dataSyncId == null) {
-                    kotlinx.coroutines.delay(500)
-                }
-                true
-            }
-            if (ready == true) {
-                // its WebView boots on the main thread; let the launch intro and Home's reveal
-                // play out first. VISIONOS streams need no token, so nothing waits on this
-                com.mochyy.mochymusic.ui.launch.LaunchGate.awaitIntro()
-                kotlinx.coroutines.delay(PoTokenAfterIntroMillis)
-                com.mochyy.mochymusic.utils.YTPlayerUtils.preWarmPoToken()
-                // the player script compiles now, so the first song doesn't wait for it
-                com.mochyy.mochymusic.utils.YTPlayerUtils.preWarmInnerTubeX()
-            }
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            // a paired device can reach this phone again as soon as mochy is up, after the intro has had the main thread
-            if (isTelevision() || !com.mochyy.mochymusic.link.phone.PhoneLinkHost.hasPairedDevices(this@App)) return@launch
-            com.mochyy.mochymusic.ui.launch.LaunchGate.awaitIntro()
-            phoneLink.get().refresh()
-            com.mochyy.mochymusic.link.phone.PhoneLinkService.start(this@App)
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            // Local songs whose cover file was cleared away get it back from the song's own file.
-            // After the intro, so it doesn't share the disk with the first frames.
-            com.mochyy.mochymusic.ui.launch.LaunchGate.awaitIntro()
-            runCatching { com.mochyy.mochymusic.importer.LocalArtwork.repair(this@App, musicDatabase) }
-                .onFailure { Timber.w(it, "Repairing local covers failed") }
-        }
-
-        applicationScope.launch(Dispatchers.Default) {
-            // the first japanese, korean or emoji title loaded its system font inside a scroll frame (6 ms on the avd); here it loads once, off the main thread
-            com.mochyy.mochymusic.ui.launch.LaunchGate.awaitIntro()
-            runCatching { android.graphics.Paint().measureText(FallbackFontWarmup) }
+            runCatching { (dataStore as? com.mochyy.mochymusic.utils.SecretPreferences)?.sealLeftovers() }
         }
     }
 
