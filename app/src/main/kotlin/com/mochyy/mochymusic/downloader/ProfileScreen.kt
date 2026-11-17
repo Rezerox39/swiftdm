@@ -35,6 +35,15 @@ fun ProfileScreen(viewModel: DownloaderViewModel, state: DownloaderUiState) {
         item { DownloaderUserCard() }
 
         item {
+            Text(
+                text = "Tap the card to flip · drag to tilt · double tap to extend",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        item {
             ProfileCard(title = "Speed profile", subtitle = "More parts mean more parallel connections when the server allows ranges.") {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(4, 8, 16, 32).forEach { count ->
@@ -52,25 +61,6 @@ fun ProfileScreen(viewModel: DownloaderViewModel, state: DownloaderUiState) {
             }
         }
 
-        item {
-            ProfileCard(title = "Engine", subtitle = "Segmented, resumable, checksum-verified, and published straight to Downloads.") {
-                Text(
-                    "Probe · dynamic split · gap repair · SHA-256 · auto-resume",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-
-        item {
-            ProfileCard(title = "Attribution", subtitle = "Built on the AMz downloader engine and the Mochy design language.") {
-                Text(
-                    "Mochy UI © Mochy contributors · GPL-3.0. AMz engine © ARMz contributors.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }
 

@@ -64,6 +64,7 @@ fun DownloadsScreen(
     viewModel: DownloaderViewModel,
     state: DownloaderUiState,
     onOpenBrowser: () -> Unit,
+    onOpenImmersive: (DownloaderRow) -> Unit,
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
@@ -74,14 +75,6 @@ fun DownloadsScreen(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item(key = "identity") {
-            DownloaderUserCard(
-                modifier = Modifier
-                    .revealOnAppear("downloader-identity", reveal)
-                    .padding(bottom = 2.dp),
-            )
-        }
-
         item(key = "composer") {
             DownloaderCard(modifier = Modifier.revealOnAppear("downloader-composer", reveal)) {
                 Text("Add download", fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -135,47 +128,8 @@ fun DownloadsScreen(
             }
         }
 
-        item(key = "stats") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                StatCard(
-                    label = "Active",
-                    value = state.stats.active.toString(),
-                    icon = Icons.Default.Speed,
-                    modifier = Modifier.weight(1f),
-                )
-                StatCard(
-                    label = "Speed",
-                    value = DownloaderUiMapper.formatRate(state.stats.bytesPerSecond),
-                    icon = Icons.Default.Bolt,
-                    modifier = Modifier.weight(1f),
-                )
-                StatCard(
-                    label = "Ready",
-                    value = state.stats.completed.toString(),
-                    icon = Icons.Default.Shield,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-
-        item(key = "bulk") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = viewModel::pauseAll, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Pause, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Text("Pause all", modifier = Modifier.padding(start = 4.dp), fontSize = 12.sp)
-                }
-                Button(onClick = viewModel::resumeAll, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Text("Resume", modifier = Modifier.padding(start = 4.dp), fontSize = 12.sp)
-                }
-                Button(onClick = viewModel::clearFinished, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Text("Clear", modifier = Modifier.padding(start = 4.dp), fontSize = 12.sp)
-                }
-            }
+        item(key = "summary") {
+            DownloaderSummary(state = state, viewModel = viewModel)
         }
 
         item(key = "filters") {
@@ -215,6 +169,7 @@ fun DownloadsScreen(
                 onResume = { viewModel.resume(row.id) },
                 onCancel = { viewModel.cancel(row.id) },
                 onRemove = { viewModel.remove(row.id) },
+                onOpenImmersive = { onOpenImmersive(row) },
                 onOpen = {
                     openDownload(context, row)
                 },
@@ -226,10 +181,13 @@ fun DownloadsScreen(
 @Composable
 private fun DownloaderCard(
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
@@ -238,22 +196,43 @@ private fun DownloaderCard(
 }
 
 @Composable
-private fun StatCard(
-    label: String,
-    value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    modifier: Modifier = Modifier,
+private fun DownloaderSummary(
+    state: DownloaderUiState,
+    viewModel: DownloaderViewModel,
 ) {
     Card(
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        Column(Modifier.padding(12.dp)) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(6.dp))
-            Text(value, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${state.stats.active} active · ${DownloaderUiMapper.formatRate(state.stats.bytesPerSecond)}",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                )
+                Text(
+                    text = "${state.stats.completed} done · ${state.stats.failed} failed",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            IconButton(onClick = viewModel::pauseAll) {
+                Icon(Icons.Default.Pause, contentDescription = "Pause all")
+            }
+            IconButton(onClick = viewModel::resumeAll) {
+                Icon(Icons.Default.PlayArrow, contentDescription = "Resume all")
+            }
+            IconButton(onClick = viewModel::clearFinished) {
+                Icon(Icons.Default.Delete, contentDescription = "Clear finished")
+            }
         }
     }
 }
@@ -267,9 +246,13 @@ private fun DownloadProgressCard(
     onResume: () -> Unit,
     onCancel: () -> Unit,
     onRemove: () -> Unit,
+    onOpenImmersive: () -> Unit,
     onOpen: () -> Unit,
 ) {
-    DownloaderCard(modifier = Modifier.revealOnAppear("download-$revealKey", reveal)) {
+    DownloaderCard(
+        modifier = Modifier.revealOnAppear("download-$revealKey", reveal),
+        onClick = onOpenImmersive,
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -339,6 +322,9 @@ private fun DownloadProgressCard(
                     Icon(Icons.Default.PlayArrow, contentDescription = "Resume")
                 }
             }
+            IconButton(onClick = onOpenImmersive) {
+                Icon(Icons.Default.Speed, contentDescription = "Immersive focus")
+            }
             if (row.isCompleted) {
                 IconButton(onClick = onOpen) { Icon(Icons.Default.OpenInNew, contentDescription = "Open") }
             }
@@ -347,7 +333,7 @@ private fun DownloadProgressCard(
     }
 }
 
-private fun openDownload(context: android.content.Context, row: DownloaderRow) {
+internal fun openDownload(context: android.content.Context, row: DownloaderRow) {
     val uri = runCatching {
         row.contentUri?.let(Uri::parse)
             ?: row.filePath?.takeIf { it.isNotBlank() }?.let { path ->

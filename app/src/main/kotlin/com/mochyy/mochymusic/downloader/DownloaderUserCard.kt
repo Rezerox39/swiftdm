@@ -7,19 +7,19 @@ import com.mochyy.mochymusic.constants.ProfileCardNumberKey
 import com.mochyy.mochymusic.constants.ProfileJoinedEpochDayKey
 import com.mochyy.mochymusic.constants.ProfilePicUriKey
 import com.mochyy.mochymusic.constants.UsernameKey
-import com.mochyy.mochymusic.ui.screens.setup.onboarding.ProfileIdCard
 import com.mochyy.mochymusic.utils.rememberPreference
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
-/** The profile card survives the pivot unchanged; only the screens around it are downloader-first. */
+/** The profile card survives the pivot, now with its Mochy gyro tilt, flip and extend motion. */
 @Composable
 fun DownloaderUserCard(modifier: Modifier = Modifier) {
     val (username) = rememberPreference(UsernameKey, "")
     val (photo) = rememberPreference(ProfilePicUriKey, "")
     val (cardNumber, setCardNumber) = rememberPreference(ProfileCardNumberKey, "")
     val (joinedEpochDay, setJoinedEpochDay) = rememberPreference(ProfileJoinedEpochDayKey, -1L)
+    val (cardTilt) = rememberPreference(DownloaderPrefs.CardTiltKey, true)
 
     LaunchedEffect(cardNumber, joinedEpochDay) {
         if (cardNumber.isBlank()) {
@@ -34,12 +34,13 @@ fun DownloaderUserCard(modifier: Modifier = Modifier) {
         "—"
     }
 
-    ProfileIdCard(
+    DownloaderAnimatedCard(
         username = username.ifBlank { "AMz user" },
         photo = photo.takeIf { it.isNotBlank() },
         cardNumber = cardNumber.ifBlank { "00000000000" },
         joinedText = joinedText,
-        showIdCardOf = true,
         modifier = modifier,
+        enableTilt = cardTilt,
+        showEditHint = true,
     )
 }
