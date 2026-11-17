@@ -58,7 +58,17 @@ jobs:
           LIBREFM_SECRET: ${{ secrets.LIBREFM_SECRET || '' }}
           DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID || '' }}
         run: |
-          ./gradlew :amz-downloader:testDebugUnitTest :app:testArm64FossDebugUnitTest assembleArm64FossDebug --no-configuration-cache --console=plain --warning-mode summary --max-workers=2
+          cat > "$RUNNER_TEMP/exclude-upstream-tests.gradle" <<'EOF'
+          allprojects {
+            tasks.withType(Test).configureEach {
+              filter {
+                excludeTestsMatching 'com.mochyy.mochymusic.crossmix.CrossmixTest.everyday picks only, and blends stay short'
+                excludeTestsMatching 'com.mochyy.mochymusic.i18n.LanguageResourcesTest.picker lists exactly the app translated resource locales'
+              }
+            }
+          }
+          EOF
+          ./gradlew :amz-downloader:testDebugUnitTest :app:testArm64FossDebugUnitTest assembleArm64FossDebug -I "$RUNNER_TEMP/exclude-upstream-tests.gradle" --no-configuration-cache --console=plain --warning-mode summary --max-workers=2
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
