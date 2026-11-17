@@ -19,7 +19,8 @@ object DownloadLinkPolicy {
         val value = raw.trim().trim('"', '\'', '<', '>')
         if (value.isBlank()) return null
         if (value.startsWith("http://", ignoreCase = true) || value.startsWith("https://", ignoreCase = true)) {
-            return value
+            val schemeEnd = value.indexOf("://")
+            return value.substring(0, schemeEnd).lowercase() + value.substring(schemeEnd)
         }
         if (value.startsWith("www.", ignoreCase = true)) return "https://$value"
         if (Domain.matches(value)) return "https://$value"
