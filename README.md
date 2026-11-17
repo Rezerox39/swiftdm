@@ -1,3 +1,29 @@
+# Mochy with ARMz downloads
+
+This repository is a modified, literal source port of **Mochy Music 8.4.2** with
+the ARMz segmented/resumable downloader preserved as an added native Compose
+screen inside Mochy's UI. The Android namespace and branding remain Mochy's;
+the base application id is `com.abhi.armz` (`com.abhi.armz.debug` for Mochy's
+upstream debug build).
+
+Licensed under **GPL-3.0**. Mochy's upstream source is pinned to commit
+`7e590802345329bb108d74f337af1ea9fe407d2a`. See [NOTICE.md](NOTICE.md),
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and the
+[port design](docs/superpowers/specs/2026-11-17-literal-mochy-port-design.md).
+
+## Build this port
+
+Requires JDK 21 and the bundled Gradle wrapper 9.3.1.
+
+```bash
+./gradlew test
+./gradlew assembleArm64FossDebug
+```
+
+The debug APK is written under `app/build/outputs/apk/arm64Foss/debug/`.
+
+---
+
 <img width="1799" height="927" alt="Frame 420" src="https://github.com/user-attachments/assets/c5e1d307-ecc4-4c26-a88f-f4f468c8e434" />
 
 <div align="center">
@@ -128,40 +154,30 @@ A - Nobody is forcing you to use this
 You only need this if you want to change the code. If you just want to use the app, use the install steps above.
 
 ### What you need
-- A Mac, Linux or Windows computer with screen
-- [Android Studio](https://developer.android.com/studio) (latest stable). It brings JDK 21 and the Android SDK with it
-- Android SDK 36 and NDK `27.0.12077973`. Android Studio offers to download both the first time you open the project
+- JDK 21 and the Gradle wrapper 9.3.1 bundled in this repository
+- Android SDK 37 and NDK `27.0.12077973`
 - About 10 gb free disk space, the first build downloads a lottt
 - A phone with USB debugging on, or an emulator.
 
 ### Steps
 ```bash
-git clone https://github.com/realidkroo/mochy-music.git
-cd mochy-music
+git clone <this repository>
+cd <this repository>
 ```
 
 1. Open the folder in Android Studio once and let it finish syncing. This also creates `local.properties` with your SDK path.
-2. Build and install on your connected phone:
+2. Run all JVM tests and assemble the ARM64 FOSS debug APK:
    ```bash
-   ./build.sh --debug -i
+   ./gradlew test assembleArm64FossDebug --no-configuration-cache --console=plain
    ```
-   First build takes a while, the next ones are much faster.
-3. Or build the apk only and install it by hand. The apk lands in `apk-generated/`:
+3. Install the APK by hand:
    ```bash
-   ./build.sh --debug
-   adb install -r apk-generated/*-debug.apk
+   adb install -r app/build/outputs/apk/arm64Foss/debug/*-debug.apk
    ```
 
-Handy options (see `./build.sh --help` for all of them):
-
-| Command | What it does |
-|---|---|
-| `./build.sh --debug -i` | debug build, installs and opens it on your phone |
-| `./build.sh --release -cc` | release build for arm64 and universal |
-| `./build.sh -fd --release` | F-Droid flavor, without the self-update permission |
-| `./build.sh -k` | stops stuck Gradle builds |
-
-Use **debug** while you are playing around, it builds much much faster. A debug build installs next to the real app (`com.example.mochy.debug`), so it will not touch your normal install, but it is also a bit slower to run.
+Use **debug** while you are playing around, it builds much much faster. The
+debug build uses `com.abhi.armz.debug` and installs next to the release build,
+which uses `com.abhi.armz`.
 
 ### Optional keys
 Mochy builds fine without these, only the matching feature is switched off. Put them in `local.properties` (it is never committed):
