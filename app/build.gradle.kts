@@ -127,7 +127,10 @@ extensions.configure<ApplicationExtension> {
 
     sourceSets {
         getByName("fdroid") {
-            java.directories.add("src/foss/kotlin")
+            // AGP 9's built-in Kotlin support no longer discovers Kotlin files placed in a
+            // Java source directory. The F-Droid flavor reuses the FOSS cast implementation,
+            // so register the directory as Kotlin sources while keeping its upstream path.
+            kotlin.directories.add("src/foss/kotlin")
             res.directories.add("src/foss/res")
         }
     }
