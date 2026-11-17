@@ -274,12 +274,12 @@ Replace the old ARMz description with a Mochy-port description that includes:
 Run:
 ```bash
 cd /root/projects/swiftdm
-grep -RniE 'commons clause|react bits' --exclude-dir=.git --exclude-dir=docs/superpowers . || echo 'no Commons Clause references'
+find . -path ./.git -prune -o -path ./.superpowers -prune -o -path ./docs/superpowers -prune -o -name THIRD_PARTY_NOTICES.md -prune -o -type f -print0 | xargs -0 grep -niE 'commons clause|react bits' || echo 'no Commons Clause references'
 grep -n 'GNU GENERAL PUBLIC LICENSE' LICENSE
 grep -n '7e590802345329bb108d74f337af1ea9fe407d2a' NOTICE.md THIRD_PARTY_NOTICES.md README.md
 ```
 
-Expected: no Commons Clause/React Bits matches; GPL text and pinned commit found.
+Expected: no Commons Clause/React Bits matches outside the notice that explicitly says the old UI is not shipped; GPL text and pinned commit found.
 
 - [ ] **Step 6: Commit**
 
