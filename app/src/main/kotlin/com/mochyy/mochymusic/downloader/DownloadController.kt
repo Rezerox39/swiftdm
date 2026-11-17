@@ -81,9 +81,9 @@ class DownloadController @Inject constructor(
     suspend fun clearFinished() {
         repository.observeDownloads().first()
             .filter { it.status in FINISHED_STATUSES }
-            .forEach { id ->
-                cancel(id)
-                repository.deleteRecord(id)
+            .forEach { row ->
+                cancel(row.id)
+                repository.deleteRecord(row.id)
             }
     }
 

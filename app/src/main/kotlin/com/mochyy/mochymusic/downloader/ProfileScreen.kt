@@ -4,6 +4,7 @@ package com.mochyy.mochymusic.downloader
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -77,7 +78,7 @@ fun ProfileScreen(viewModel: DownloaderViewModel, state: DownloaderUiState) {
 private fun ProfileCard(
     title: String,
     subtitle: String,
-    content: @Composable Column.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),

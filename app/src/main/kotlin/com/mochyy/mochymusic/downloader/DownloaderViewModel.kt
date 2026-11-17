@@ -153,7 +153,7 @@ class DownloaderViewModel @Inject constructor(
 
     private fun action(message: String, block: suspend () -> Unit) {
         viewModelScope.launch {
-            runCatching(block)
+            runCatching { block() }
                 .onSuccess { TopToaster.show(message) }
                 .onFailure { error -> TopToaster.error(error.message ?: "Action failed") }
         }
