@@ -24,7 +24,7 @@ extensions.configure<ApplicationExtension> {
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
-        applicationId = "com.mochyy.mochymusic"
+        applicationId = "com.abhi.armz"
         minSdk = 24
         targetSdk = 37
         versionCode = 73
@@ -356,6 +356,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    implementation(project(":amz-downloader"))
     implementation(libs.guava)
     implementation(libs.coroutines.guava)
     implementation(libs.concurrent.futures)
