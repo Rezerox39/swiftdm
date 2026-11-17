@@ -1,0 +1,68 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, feat/literal-mochy-port]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Test and build arm64 FOSS debug
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate debug.keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Test and build
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY || '' }}
+          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET || '' }}
+          LIBREFM_API_KEY: ${{ secrets.LIBREFM_API_KEY || '' }}
+          LIBREFM_SECRET: ${{ secrets.LIBREFM_SECRET || '' }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID || '' }}
+        run: |
+          ./gradlew test assembleArm64FossDebug --no-configuration-cache --console=plain --warning-mode summary
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: armz-mochy-arm64-foss-debug
+          path: app/build/outputs/apk/arm64Foss/debug/*.apk
+          retention-days: 7
