@@ -7,7 +7,7 @@ on:
     tags: ['v*']
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -76,3 +76,32 @@ jobs:
           name: armz-mochy-arm64-foss-debug
           path: app/build/outputs/apk/arm64Foss/debug/*.apk
           retention-days: 7
+
+      - name: Prepare release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          apk=$(find app/build/outputs/apk/arm64Foss/debug -maxdepth 1 -name '*.apk' -print -quit)
+          cp "$apk" app/build/outputs/apk/arm64Foss/debug/amz-downloader-arm64-foss-debug.apk
+
+      - name: Publish prerelease
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: true
+          draft: false
+          generate_release_notes: false
+          files: app/build/outputs/apk/arm64Foss/debug/amz-downloader-arm64-foss-debug.apk
+          body: |
+            Mochy-styled AMz downloader UI prerelease.
+
+            - Animated logo splash and first-start greeting/name/photo setup
+            - Gyro/drag animated profile card with flip and extend
+            - Floating frosted pill navigation matching the Mochy player feel
+            - Immersive download focus with system-bar hiding
+            - Settings for motion, look, profile card and immersive behavior
+
+            Built from ${{ github.sha }} as arm64 FOSS debug.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
