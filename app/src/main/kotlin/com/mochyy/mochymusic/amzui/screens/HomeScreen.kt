@@ -23,7 +23,7 @@ import com.mochyy.mochymusic.amzui.components.HeroCard
 import com.mochyy.mochymusic.amzui.components.PillBar
 import com.mochyy.mochymusic.amzui.components.RowCard
 import com.mochyy.mochymusic.amzui.components.ScreenTopBar
-import com.mochyy.mochymusic.amzui.components.amzPress
+import com.mochyy.mochymusic.amzui.theme.amzPress
 import com.mochyy.mochymusic.amzui.theme.AmzColors
 import com.mochyy.mochymusic.amzui.theme.AmzDimens
 import com.mochyy.mochymusic.amzui.theme.AmzType

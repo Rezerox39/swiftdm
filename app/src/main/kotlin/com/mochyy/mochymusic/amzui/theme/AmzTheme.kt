@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,9 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.mochyy.mochymusic.R
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 
 /** Every color in the AMz canvas. Screens must not declare colors of their own. */
 object AmzColors {
@@ -352,17 +348,15 @@ object AmzShapes {
 fun cssLinearGradient(
     angleDeg: Float,
     vararg stops: Pair<Float, Color>,
-): Brush = ShaderBrush { size ->
+): Brush {
     val radians = Math.toRadians(angleDeg.toDouble())
-    val dx = sin(radians).toFloat()
-    val dy = -cos(radians).toFloat()
-    val reach = (abs(dx) * size.width + abs(dy) * size.height) / 2f
-    val center = Offset(size.width / 2f, size.height / 2f)
-    Brush.linearGradient(
+    val dx = Math.sin(radians).toFloat()
+    val dy = -Math.cos(radians).toFloat()
+    return Brush.linearGradient(
         colorStops = stops.map { it.first to it.second }.toTypedArray(),
-        start = Offset(center.x - dx * reach, center.y - dy * reach),
-        end = Offset(center.x + dx * reach, center.y + dy * reach),
-    ).createShader(size)
+        start = Offset.Zero,
+        end = Offset(dx * 1000f, dy * 1000f),
+    )
 }
 
 @Composable

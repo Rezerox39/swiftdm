@@ -1,5 +1,6 @@
 package com.mochyy.mochymusic.amzui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.items
@@ -42,7 +43,7 @@ import com.mochyy.mochymusic.amzui.components.FileTile
 import com.mochyy.mochymusic.amzui.components.RoundIconButton
 import com.mochyy.mochymusic.amzui.components.ScreenTopBar
 import com.mochyy.mochymusic.amzui.components.StatCard
-import com.mochyy.mochymusic.amzui.components.amzPress
+import com.mochyy.mochymusic.amzui.theme.amzPress
 import com.mochyy.mochymusic.amzui.data.AmzDownloadItem
 import com.mochyy.mochymusic.amzui.data.AmzFileKind
 import com.mochyy.mochymusic.amzui.data.gradient

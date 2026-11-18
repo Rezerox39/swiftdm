@@ -5,7 +5,7 @@ import android.webkit.DownloadListener
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.BasicTextField
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +46,7 @@ import com.mochyy.mochymusic.amzui.components.AmzChip
 import com.mochyy.mochymusic.amzui.components.Avatar
 import com.mochyy.mochymusic.amzui.components.FileTile
 import com.mochyy.mochymusic.amzui.components.RoundIconButton
-import com.mochyy.mochymusic.amzui.components.amzPress
+import com.mochyy.mochymusic.amzui.theme.amzPress
 import com.mochyy.mochymusic.amzui.components.cardSurface
 import com.mochyy.mochymusic.amzui.data.AmzDetectedFile
 import com.mochyy.mochymusic.amzui.data.AmzFileKind

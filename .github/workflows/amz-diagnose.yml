@@ -47,16 +47,22 @@ jobs:
           set -o pipefail
           ./gradlew :app:compileArm64FossDebugKotlin --continue --no-configuration-cache --console=plain --warning-mode summary --max-workers=2 2>&1 | tee kotlin-diagnose.log || true
           python3 - <<'PY'
-          import re
           import pathlib
+          import re
+          import sys
+
           summary = pathlib.Path("kotlin-diagnose.log").read_text(errors="replace")
           count = 0
-          for line in summary.splitlines():
-              match = re.match(r"^e: file:///(.*?):(\d+):(\d+): (.*)$", line)
-              if match:
-                  path, line_no, col, message = match.groups()
-                  print(f"::error file={path},line={line_no},col={col}::{message}")
-                  count += 1
+          for raw in summary.splitlines():
+              line = re.sub(r"^\d{4}-\d{2}-\d{2}T\S+\s+", "", raw)
+              line = re.sub(r"\x1b\[[0-9;]*m", "", line)
+              match = re.search(r"^e: file:///(.*?):(\d+):(\d+): (.*)$", line)
+              if not match:
+                  continue
+              path, line_no, col, message = match.groups()
+              rel = path.split("/swiftdm/", 1)[-1] if "/swiftdm/" in path else path
+              print(f"::error file={rel},line={line_no},col={col}::{message}")
+              count += 1
           print(f"AMz Kotlin diagnostic errors: {count}")
+          sys.exit(1 if count else 0)
           PY
-          grep -qE '^e: file:///' kotlin-diagnose.log && exit 1 || exit 0

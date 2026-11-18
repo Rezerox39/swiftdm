@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateTopPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.Dp
 import com.mochyy.mochymusic.amzui.components.GlassNavBar
 import com.mochyy.mochymusic.amzui.theme.AmzColors
 import com.mochyy.mochymusic.amzui.theme.AmzDimens
-import kotlin.math.max
 
 /** Every canvas screen starts below max(52dp, statusBarInset + 12dp) on pure black. */
 @Composable
@@ -30,7 +28,7 @@ fun AmzScreen(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val topPadding = max(AmzDimens.statusTopMin, statusTop + AmzDimens.statusTopExtra)
+    val topPadding = maxOf(AmzDimens.statusTopMin, statusTop + AmzDimens.statusTopExtra)
     Column(
         modifier = modifier
             .fillMaxSize()

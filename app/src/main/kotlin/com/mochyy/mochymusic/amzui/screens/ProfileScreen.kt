@@ -38,7 +38,7 @@ import com.mochyy.mochymusic.amzui.components.AmzSwitch
 import com.mochyy.mochymusic.amzui.components.IdCard
 import com.mochyy.mochymusic.amzui.components.ScreenTopBar
 import com.mochyy.mochymusic.amzui.components.StatCard
-import com.mochyy.mochymusic.amzui.components.amzPress
+import com.mochyy.mochymusic.amzui.theme.amzPress
 import com.mochyy.mochymusic.amzui.data.AmzPrefs
 import com.mochyy.mochymusic.amzui.theme.AmzColors
 import com.mochyy.mochymusic.amzui.theme.AmzDimens
