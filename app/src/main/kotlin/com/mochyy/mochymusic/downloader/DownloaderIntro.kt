@@ -37,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -256,7 +257,7 @@ private fun DownloaderGreeting(name: String, onNext: () -> Unit) {
             modifier = Modifier
                 .size(320.dp)
                 .offset(x = 150.dp, y = (-120).dp)
-                .graphicsLayer { alpha = 0.12f }
+                .graphicsLayer { this.alpha = 0.12f }
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary),
         )
@@ -264,7 +265,7 @@ private fun DownloaderGreeting(name: String, onNext: () -> Unit) {
             modifier = Modifier
                 .size(220.dp)
                 .offset(x = (-120).dp, y = 420.dp)
-                .graphicsLayer { alpha = 0.08f }
+                .graphicsLayer { this.alpha = 0.08f }
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary),
         )

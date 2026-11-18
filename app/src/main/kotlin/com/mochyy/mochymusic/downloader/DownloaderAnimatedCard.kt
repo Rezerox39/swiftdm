@@ -103,8 +103,10 @@ fun DownloaderAnimatedCard(
                         onDragStart = { pressed = true },
                         onDrag = { change, amount ->
                             change.consume()
-                            dragY.snapTo((dragY.value + amount.x * 0.12f).coerceIn(-18f, 18f))
-                            dragX.snapTo((dragX.value - amount.y * 0.12f).coerceIn(-14f, 14f))
+                            scope.launch {
+                                dragY.snapTo((dragY.value + amount.x * 0.12f).coerceIn(-18f, 18f))
+                                dragX.snapTo((dragX.value - amount.y * 0.12f).coerceIn(-14f, 14f))
+                            }
                         },
                         onDragEnd = {
                             pressed = false
