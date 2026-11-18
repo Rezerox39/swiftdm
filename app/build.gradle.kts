@@ -25,10 +25,10 @@ extensions.configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.abhi.armz"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
-        versionCode = 75
-        versionName = "1.0.0-amz-u2"
+        versionCode = 76
+        versionName = "1.0.0-amz-u3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -366,6 +366,7 @@ dependencies {
 
     implementation(libs.activity)
     implementation(libs.hilt.navigation)
+    implementation(libs.navigation.compose)
     implementation(libs.datastore)
 
     implementation(libs.compose.runtime)

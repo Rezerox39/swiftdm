@@ -94,13 +94,13 @@ jobs:
           generate_release_notes: false
           files: app/build/outputs/apk/arm64Foss/debug/amz-downloader-arm64-foss-debug.apk
           body: |
-            Mochy-styled AMz downloader UI prerelease.
+            Canvas-specified AMz Downloader UI prerelease.
 
-            - Animated logo splash and first-start greeting/name/photo setup
-            - Gyro/drag animated profile card with flip and extend
-            - Floating frosted pill navigation matching the Mochy player feel
-            - Immersive download focus with system-bar hiding
-            - Settings for motion, look, profile card and immersive behavior
+            - Eight screens: Splash, Import, Setup, Home, Details, Library, Browser, Profile
+            - Pure-black canvas theme, bundled Inter weights, reusable component kit
+            - Fake repository drives 300 ms download simulation; engine untouched
+            - Tab navigation without back-stack growth, reduced-motion final states
+            - Storage/photo permissions and shared-link capture wired to the new UI
 
             Built from ${{ github.sha }} as arm64 FOSS debug.
         env:
