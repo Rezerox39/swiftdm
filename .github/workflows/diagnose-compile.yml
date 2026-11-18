@@ -1,0 +1,52 @@
+name: Diagnose compile
+
+on:
+  push:
+    branches: [feat/amz-downloader-app]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate debug.keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Compile Kotlin
+        run: |
+          set -o pipefail
+          ./gradlew :amz-downloader:compileDebugKotlin :app:compileArm64FossDebugKotlin --no-configuration-cache --console=plain --warning-mode summary --max-workers=2 2>&1 | tee "$RUNNER_TEMP/compile.log"
+
+      - name: Report compiler errors
+        if: failure()
+        run: |
+          grep -E '^e: |error:|FAILURE:|Execution failed|Unresolved reference|Caused by:' "$RUNNER_TEMP/compile.log" | head -30 | while IFS= read -r line; do echo "::error::$line"; done
