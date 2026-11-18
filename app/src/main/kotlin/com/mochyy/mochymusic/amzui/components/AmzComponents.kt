@@ -64,6 +64,7 @@ import com.mochyy.mochymusic.amzui.data.AmzHeroSnapshot
 import com.mochyy.mochymusic.amzui.data.gradient
 import com.mochyy.mochymusic.amzui.theme.AmzColors
 import com.mochyy.mochymusic.amzui.theme.AmzDimens
+import com.mochyy.mochymusic.amzui.theme.AmzDuration
 import com.mochyy.mochymusic.amzui.theme.AmzEase
 import com.mochyy.mochymusic.amzui.theme.AmzShapes
 import com.mochyy.mochymusic.amzui.theme.AmzType
@@ -91,7 +92,7 @@ fun FileTile(
             .size(tileSize)
             .clip(RoundedCornerShape(radius))
             .background(gradient)
-            .border(1.dp, AmzColors.White28, RoundedCornerShape(radius))
+            .border(AmzDimens.borderThin, AmzColors.White28, RoundedCornerShape(radius))
             .drawBehind {
                 drawRect(brush = Brush.verticalGradient(listOf(AmzColors.White28, Color.Transparent)))
                 drawRect(
@@ -166,7 +167,7 @@ fun ProgressFill(
 ) {
     val animated by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = tween(300),
+        animationSpec = tween(AmzDuration.Tick),
         label = "progressFill",
     )
     val shape = RoundedCornerShape(AmzDimens.progressRadius)
@@ -219,7 +220,7 @@ fun GlassNavBar(
             .height(AmzDimens.navHeight)
             .clip(AmzShapes.round)
             .background(AmzColors.NavGlass)
-            .border(1.dp, AmzColors.White10, AmzShapes.round)
+            .border(AmzDimens.borderThin, AmzColors.White10, AmzShapes.round)
             .padding(AmzDimens.navPad)
             .amzEnter(delayMs = 300),
         verticalAlignment = Alignment.CenterVertically,
@@ -228,7 +229,7 @@ fun GlassNavBar(
             val isSelected = selected == index
             val weight by animateFloatAsState(
                 targetValue = if (isSelected) 1.35f else 1f,
-                animationSpec = tween(350, easing = AmzEase),
+                animationSpec = tween(AmzDuration.Pop, easing = AmzEase),
                 label = "navWeight",
             )
             Box(
@@ -272,8 +273,8 @@ fun PillBar(
             .height(AmzDimens.pillBarHeight)
             .clip(AmzShapes.round)
             .background(AmzColors.SurfacePill)
-            .border(1.dp, AmzColors.White8, AmzShapes.round)
-            .padding(start = 16.dp, end = 6.dp),
+            .border(AmzDimens.borderThin, AmzColors.White8, AmzShapes.round)
+            .padding(start = AmzDimens.screenX, end = AmzDimens.microGap),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (hero.clip) {
@@ -284,7 +285,7 @@ fun PillBar(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(AmzDimens.gap10))
             Box(
                 modifier = Modifier
                     .height(AmzDimens.pillDownloadHeight)
@@ -302,7 +303,7 @@ fun PillBar(
                     .size(AmzDimens.pillDot)
                     .clip(AmzShapes.round)
                     .background(AmzColors.Success)
-                    .amzPulse(1400),
+                    .amzPulse(AmzDuration.LivePulse),
             )
             Spacer(Modifier.width(AmzDimens.smallGap))
             val speed = if (hero.paused) 0f else hero.speed + 3.2f * activeCount
@@ -335,14 +336,14 @@ fun RowCard(
             .fillMaxWidth()
             .clip(AmzShapes.row)
             .background(cardSurface())
-            .border(1.dp, AmzColors.White7, AmzShapes.row),
+            .border(AmzDimens.borderThin, AmzColors.White7, AmzShapes.row),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 14.dp, end = 10.dp),
+                .padding(start = AmzDimens.childGap, end = AmzDimens.gap10),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AmzDimens.childGap - 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(AmzDimens.gap12),
         ) {
             Text(
                 text = rank.toString(),
@@ -390,7 +391,7 @@ fun RowCard(
                     contentDescription = null,
                     tint = if (item.done) AmzColors.TextPrimary else AmzColors.TextPrimary,
                     modifier = Modifier
-                        .size(16.dp)
+                        .size(AmzDimens.icon16)
                         .amzPop(item.active),
                 )
             }
@@ -441,7 +442,7 @@ fun HeroCard(
                     1f to AmzColors.HeroEnd,
                 ),
             )
-            .border(1.dp, AmzColors.White10, AmzShapes.hero)
+            .border(AmzDimens.borderThin, AmzColors.White10, AmzShapes.hero)
             .drawBehind {
                 drawRect(brush = Brush.verticalGradient(listOf(AmzColors.White14, Color.Transparent)))
             },
@@ -449,12 +450,12 @@ fun HeroCard(
         Box(
             modifier = Modifier
                 .size(AmzDimens.heroGlow)
-                .offset(x = 0.dp, y = (-60).dp)
+                .offset(x = 0.dp, y = -AmzDimens.heroArtOffsetY)
                 .align(Alignment.TopEnd)
                 .clip(AmzShapes.round)
                 .background(AmzColors.HeroGlow)
-                .blur(55.dp)
-                .amzPulse(3200),
+                .blur(AmzDimens.heroBlur)
+                .amzPulse(AmzDuration.HeroPulse),
         )
         Column(modifier = Modifier.fillMaxSize().padding(AmzDimens.heroPad)) {
             Row(
@@ -478,7 +479,7 @@ fun HeroCard(
                     )
                     Text(
                         text = hero.name,
-                        style = AmzType.rowTitle.copy(fontSize = 20.sp),
+                        style = AmzType.heroTitle,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -499,7 +500,7 @@ fun HeroCard(
                     )
                 }
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(AmzDimens.gap12))
             ProgressFill(progress = hero.pct / 100f, hero = true)
             Spacer(Modifier.height(AmzDimens.smallGap))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -537,7 +538,7 @@ private fun Sparkline(
         val barWidth = (size.width - gap * (count - 1)) / count
         repeat(count) { index ->
             val value = values.getOrElse(index) { 0f }
-            val barHeight = if (paused) 3.dp.toPx() else (value * 1.2f).dp.toPx().coerceAtMost(size.height)
+            val barHeight = if (paused) AmzDimens.rowLine.toPx() else (value * AmzDimens.sparkBarScale).dp.toPx().coerceAtMost(size.height)
             drawRoundRect(
                 brush = brush,
                 topLeft = Offset(index * (barWidth + gap), size.height - barHeight),
@@ -568,7 +569,7 @@ fun StatCard(
             .height(AmzDimens.statCardHeight)
             .clip(AmzShapes.stat)
             .background(cardSurface())
-            .border(1.dp, AmzColors.White7, AmzShapes.stat)
+            .border(AmzDimens.borderThin, AmzColors.White7, AmzShapes.stat)
             .amzPress(0.95f, onClick)
             .padding(horizontal = AmzDimens.statPadX, vertical = AmzDimens.statPadY),
     ) {
@@ -590,12 +591,12 @@ fun AmzSwitch(
 ) {
     val knob by animateFloatAsState(
         targetValue = if (checked) 1f else 0f,
-        animationSpec = tween(250, easing = AmzEase),
+        animationSpec = tween(AmzDuration.Switch, easing = AmzEase),
         label = "switchKnob",
     )
     val track by animateFloatAsState(
         targetValue = if (checked) 1f else 0f,
-        animationSpec = tween(250, easing = AmzEase),
+        animationSpec = tween(AmzDuration.Switch, easing = AmzEase),
         label = "switchTrack",
     )
     val trackColor = if (track > 0.5f) AmzColors.Success else AmzColors.SwitchOffTrack
@@ -654,11 +655,11 @@ fun IdCard(
                     1f to AmzColors.IdEnd,
                 ),
             )
-            .border(1.dp, AmzColors.White8, AmzShapes.stat)
+            .border(AmzDimens.borderThin, AmzColors.White8, AmzShapes.stat)
             .drawBehind {
                 drawRect(brush = Brush.verticalGradient(listOf(AmzColors.White10, Color.Transparent)))
             }
-            .amzShimmer(durationMs = 4000, highlight = AmzColors.White10)
+            .amzShimmer(durationMs = AmzDuration.Sheen, highlight = AmzColors.White10)
             .padding(AmzDimens.idCardPad),
     ) {
         Text(
@@ -668,9 +669,9 @@ fun IdCard(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(end = 28.dp),
+                .padding(end = AmzDimens.sheetPadEnd),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(AmzDimens.childGap),
         ) {
             Avatar(
                 name = name,
@@ -734,7 +735,7 @@ fun Avatar(
                         color = AmzColors.TextTertiary,
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.toPx() / 2),
                         style = Stroke(
-                            width = 2.dp.toPx(),
+                            width = AmzDimens.line2.toPx(),
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f)),
                         ),
                     )
@@ -773,7 +774,7 @@ fun SheetContainer(content: @Composable ColumnScope.() -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 64.dp)
+                .padding(top = AmzDimens.componentTopPad)
                 .clip(AmzShapes.sheet)
                 .background(AmzColors.Sheet)
                 .padding(
@@ -842,7 +843,7 @@ fun AmzSearchField(
             .height(AmzDimens.searchHeight)
             .clip(AmzShapes.round)
             .background(AmzColors.Surface2)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = AmzDimens.screenX),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -850,7 +851,7 @@ fun AmzSearchField(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search",
                 tint = AmzColors.TextTertiary,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(AmzDimens.icon18),
             )
             Spacer(Modifier.width(AmzDimens.smallGap))
             BasicTextField(

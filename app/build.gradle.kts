@@ -27,8 +27,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.abhi.armz"
         minSdk = 26
         targetSdk = 37
-        versionCode = 76
-        versionName = "1.0.0-amz-u3"
+        versionCode = 77
+        versionName = "1.0.0-amz-u4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

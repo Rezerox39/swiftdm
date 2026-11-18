@@ -98,6 +98,7 @@ jobs:
 
             - Eight screens: Splash, Import, Setup, Home, Details, Library, Browser, Profile
             - Pure-black canvas theme, bundled Inter weights, reusable component kit
+            - All visual constants centralized in amzui/theme
             - Fake repository drives 300 ms download simulation; engine untouched
             - Tab navigation without back-stack growth, reduced-motion final states
             - Storage/photo permissions and shared-link capture wired to the new UI

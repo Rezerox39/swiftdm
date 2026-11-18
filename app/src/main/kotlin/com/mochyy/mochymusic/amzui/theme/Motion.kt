@@ -50,6 +50,7 @@ object AmzDuration {
     const val Switch = 250
     const val Nav = 350
     const val Press = 200
+    const val Frame = 16
 }
 
 private const val RiseMs = AmzDuration.Rise
@@ -127,7 +128,7 @@ fun Modifier.amzPop(key: Any?): Modifier = composed {
             popped = true
         } else {
             popped = false
-            delay(16)
+            delay(AmzDuration.Frame.toLong())
             popped = true
         }
         animatedKey = key
@@ -207,7 +208,7 @@ fun Modifier.amzPress(
     val target = if (pressed && !reduced) pressedScale else 1f
     val scale by animateFloatAsState(
         targetValue = target,
-        animationSpec = tween(200, easing = AmzEase),
+        animationSpec = tween(AmzDuration.Press, easing = AmzEase),
         label = "amzPress",
     )
     this
@@ -226,8 +227,8 @@ fun Modifier.amzTilePress(onClick: () -> Unit): Modifier = composed {
     val pressed by interaction.collectIsPressedAsState()
     val targetScale = if (pressed && !reduced) 1.02f else 1f
     val targetY = if (pressed && !reduced) -4f else 0f
-    val scale by animateFloatAsState(targetScale, tween(200, easing = AmzEase), label = "tileScale")
-    val y by animateFloatAsState(targetY, tween(200, easing = AmzEase), label = "tileY")
+    val scale by animateFloatAsState(targetScale, tween(AmzDuration.Press, easing = AmzEase), label = "tileScale")
+    val y by animateFloatAsState(targetY, tween(AmzDuration.Press, easing = AmzEase), label = "tileY")
     this
         .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) }
         .graphicsLayer {

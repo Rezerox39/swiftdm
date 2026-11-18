@@ -85,7 +85,7 @@ fun ImportScreen(onContinue: () -> Unit) {
                         .size(AmzDimens.importIcon * 2)
                         .clip(AmzShapes.card)
                         .background(cardSurface())
-                        .border(1.dp, AmzColors.White10, AmzShapes.card)
+                        .border(AmzDimens.borderThin, AmzColors.White10, AmzShapes.card)
                         .amzShimmer(AmzDuration.Sheen, AmzColors.White8),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -98,11 +98,11 @@ fun ImportScreen(onContinue: () -> Unit) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(end = 6.dp, bottom = 6.dp)
+                            .padding(end = AmzDimens.microGap, bottom = AmzDimens.microGap)
                             .size(AmzDimens.importIcon)
                             .clip(AmzShapes.row)
                             .background(AmzColors.Surface3)
-                            .border(1.dp, AmzColors.White16, AmzShapes.row),
+                            .border(AmzDimens.borderThin, AmzColors.White16, AmzShapes.row),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -113,7 +113,7 @@ fun ImportScreen(onContinue: () -> Unit) {
                         )
                     }
                 }
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(AmzDimens.sectionGap))
                 Text(
                     text = "Scan your Downloads folder and add files without moving them.",
                     style = AmzType.secondary,

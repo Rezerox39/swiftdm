@@ -47,6 +47,7 @@ import com.mochyy.mochymusic.amzui.components.ProgressFill
 import com.mochyy.mochymusic.amzui.components.RoundIconButton
 import com.mochyy.mochymusic.amzui.theme.AmzColors
 import com.mochyy.mochymusic.amzui.theme.AmzDimens
+import com.mochyy.mochymusic.amzui.theme.AmzDuration
 import com.mochyy.mochymusic.amzui.theme.AmzShapes
 import com.mochyy.mochymusic.amzui.theme.AmzType
 import com.mochyy.mochymusic.amzui.theme.amzPulse
@@ -97,8 +98,8 @@ fun DetailsScreen(
                         .align(Alignment.TopCenter)
                         .clip(androidx.compose.foundation.shape.CircleShape)
                         .background(AmzColors.DetailsTop)
-                        .blur(60.dp)
-                        .amzPulse(3200),
+                        .blur(AmzDimens.detailsArtBlur)
+                        .amzPulse(AmzDuration.HeroPulse),
                 )
                 Text(
                     text = download.kind.extension,
@@ -206,7 +207,7 @@ fun DetailsScreen(
                     )
                     Spacer(Modifier.height(AmzDimens.smallGap))
                     ProgressFill(progress = download.pct / 100f, hero = true)
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(AmzDimens.microGap))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -289,7 +290,7 @@ private fun DetailSpecs(item: com.mochyy.mochymusic.amzui.data.AmzDownloadItem) 
                     1f to AmzColors.SurfaceBottom,
                 ),
             )
-            .border(1.dp, AmzColors.White7, AmzShapes.stat)
+            .border(AmzDimens.borderThin, AmzColors.White7, AmzShapes.stat)
             .padding(AmzDimens.detailsCardPad),
         verticalArrangement = Arrangement.spacedBy(AmzDimens.childGap),
     ) {

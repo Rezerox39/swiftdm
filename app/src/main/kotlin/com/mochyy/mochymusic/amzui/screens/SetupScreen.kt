@@ -65,7 +65,7 @@ fun SetupScreen(onFinished: () -> Unit) {
                 style = AmzType.secondary,
                 textAlign = TextAlign.Start,
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(AmzDimens.sectionGap))
             IdCard(
                 name = nameState.value.ifBlank { "A" },
                 photoUri = photoState.value.takeIf { it.isNotBlank() },
@@ -75,7 +75,7 @@ fun SetupScreen(onFinished: () -> Unit) {
                 },
                 modifier = Modifier.amzEnter(),
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(AmzDimens.sectionGap))
             Text(
                 text = "Your name",
                 style = AmzType.statLabel,
@@ -88,7 +88,7 @@ fun SetupScreen(onFinished: () -> Unit) {
                     .height(AmzDimens.fieldHeight)
                     .clip(AmzShapes.field)
                     .background(AmzColors.Surface2)
-                    .border(1.dp, AmzColors.White10, AmzShapes.field)
+                    .border(AmzDimens.borderThin, AmzColors.White10, AmzShapes.field)
                     .padding(horizontal = AmzDimens.statPadX),
             ) {
                 BasicTextField(

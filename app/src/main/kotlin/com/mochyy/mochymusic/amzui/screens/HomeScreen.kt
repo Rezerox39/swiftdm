@@ -68,7 +68,7 @@ fun HomeScreen(
                 onTogglePause = viewModel::togglePause,
                 onOpen = { downloads.firstOrNull()?.let { onOpenDetails(it.id) } },
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(AmzDimens.sectionGap))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

@@ -87,7 +87,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                     style = AmzType.screenTitle.copy(color = AmzColors.Background),
                 )
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(AmzDimens.sectionGap))
             Text(
                 text = "AMZ Downloader",
                 style = AmzType.sectionTitle,

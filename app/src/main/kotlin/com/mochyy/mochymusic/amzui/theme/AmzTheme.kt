@@ -98,6 +98,15 @@ object AmzDimens {
     val childGap = 14.dp
     val smallGap = 8.dp
     val tinyGap = 4.dp
+    val microGap = 6.dp
+    val sectionGap = 24.dp
+    val borderThin = 1.dp
+    val line2 = 2.dp
+    val gap10 = 10.dp
+    val gap12 = 12.dp
+    val icon16 = 16.dp
+    val icon18 = 18.dp
+    val componentTopPad = 64.dp
 
     val touch44 = 44.dp
     val card12 = 12.dp
@@ -110,6 +119,7 @@ object AmzDimens {
     val heroRadius = 32.dp
     val sheetRadius = 36.dp
     val chipRadius = 20.dp
+    val fieldRadius = 18.dp
     val pillRadius = 999.dp
 
     val chipHeight = 40.dp
@@ -123,6 +133,7 @@ object AmzDimens {
     val sheetHandleTop = 10.dp
     val sheetPadTop = 40.dp
     val sheetPadX = 24.dp
+    val sheetPadEnd = 28.dp
     val sheetPadBottom = 28.dp
 
     val switchW = 52.dp
@@ -151,10 +162,13 @@ object AmzDimens {
     val heroPause = 48.dp
     val heroIcon = 20.dp
     val heroGlow = 180.dp
+    val heroArtOffsetY = 60.dp
+    val heroBlur = 55.dp
     val sparkHeight = 30.dp
     val sparkBars = 18
     val sparkGap = 3.dp
     val sparkRadius = 4.dp
+    const val sparkBarScale = 1.2f
     val progressTrack = 8.dp
     val progressRadius = 4.dp
 
@@ -173,6 +187,7 @@ object AmzDimens {
     val bottomFade = 170.dp
 
     val detailsArtHeight = 560.dp
+    val detailsArtBlur = 60.dp
     val detailsTopBarTop = 52.dp
     val detailsTitleTop = 372.dp
     val detailsProgressTop = 470.dp
@@ -206,6 +221,7 @@ object AmzDimens {
 
     val browserBack = 48.dp
     val browserTile = 52.dp
+    val browserLockIcon = 14.dp
     val browserRowHeight = 64.dp
     val browserButton = 40.dp
 
@@ -270,6 +286,7 @@ object AmzType {
         letterSpacing = titleSpacing,
     )
     val rowTitleSmall = rowTitle.copy(fontSize = 16.sp)
+    val heroTitle = rowTitle.copy(fontSize = 20.sp, lineHeight = 24.sp)
     val body = TextStyle(
         fontFamily = AmzInter,
         fontWeight = FontWeight.Normal,
@@ -338,7 +355,7 @@ object AmzShapes {
     )
     val chip = RoundedCornerShape(AmzDimens.chipRadius)
     val round = RoundedCornerShape(AmzDimens.pillRadius)
-    val field = RoundedCornerShape(18.dp)
+    val field = RoundedCornerShape(AmzDimens.fieldRadius)
 }
 
 /**

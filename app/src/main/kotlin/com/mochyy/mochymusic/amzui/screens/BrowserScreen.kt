@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -121,7 +122,7 @@ fun BrowserScreen(
                             imageVector = Icons.Default.Lock,
                             contentDescription = "Secure connection",
                             tint = AmzColors.Success,
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(AmzDimens.browserLockIcon),
                         )
                         Spacer(Modifier.width(AmzDimens.smallGap))
                         Text(
@@ -146,8 +147,8 @@ fun BrowserScreen(
                     .height(AmzDimens.searchHeight)
                     .clip(AmzShapes.round)
                     .background(AmzColors.SurfacePill)
-                    .border(1.dp, AmzColors.White8, AmzShapes.round)
-                    .padding(start = AmzDimens.statPadX, end = 6.dp),
+                    .border(AmzDimens.borderThin, AmzColors.White8, AmzShapes.round)
+                    .padding(start = AmzDimens.statPadX, end = AmzDimens.microGap),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 BasicTextField(
@@ -204,7 +205,7 @@ fun BrowserScreen(
                 AndroidView(
                     factory = { context ->
                         WebView(context).apply {
-                            setBackgroundColor(android.graphics.Color.BLACK)
+                            setBackgroundColor(AmzColors.Background.toArgb())
                             settings.apply {
                                 javaScriptEnabled = true
                                 domStorageEnabled = true
