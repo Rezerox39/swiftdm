@@ -49,6 +49,14 @@ internal class EngineTestServer(
     @Volatile
     var getDelayMs: Long = 0L
 
+    /** Return 206 without a total size, to exercise the HEAD fallback in HttpProbe. */
+    @Volatile
+    var omitRangeTotal: Boolean = false
+
+    /** GET number (1-based, probe included) that should ignore the Range header once. */
+    @Volatile
+    var ignoreRangeAt: Int = 0
+
     val rangeHeaders = ConcurrentLinkedQueue<String>()
     val getCount = AtomicInteger()
     val headCount = AtomicInteger()
@@ -85,6 +93,9 @@ internal class EngineTestServer(
         }
 
         val range = request.getHeader("Range")
+        if (range != null && ignoreRangeAt > 0 && getCount.get() == ignoreRangeAt) {
+            return withThrottle(fullResponse())
+        }
         if (range == null || !supportsRanges) {
             val response = withThrottle(fullResponse())
             if (getDelayMs > 0L) response.setHeadersDelay(getDelayMs, TimeUnit.MILLISECONDS)
@@ -102,7 +113,10 @@ internal class EngineTestServer(
         val slice = content.copyOfRange(start, safeEnd + 1)
         val response = MockResponse()
             .setResponseCode(206)
-            .setHeader("Content-Range", "bytes $start-$safeEnd/${content.size}")
+            .setHeader(
+                "Content-Range",
+                if (omitRangeTotal) "bytes $start-$safeEnd/*" else "bytes $start-$safeEnd/${content.size}",
+            )
             .setHeader("Content-Length", slice.size.toString())
             .setHeader("Content-Type", "application/octet-stream")
             .setHeader("Content-Disposition", "attachment; filename=\"sample.bin\"")

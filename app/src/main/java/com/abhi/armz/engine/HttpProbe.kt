@@ -23,7 +23,8 @@ data class ProbeResult(
  *
  * A single `Range: bytes=0-0` GET is the most reliable signal and avoids the extra round trip a
  * HEAD request would add. 206 means ranges work and Content-Range carries the full length; 200
- * means the server ignored the range and the engine must fall back to one connection.
+ * means the server ignored the range and the engine must fall back to one connection. A 206 that
+ * omits the total is the one case that needs a single HEAD fallback.
  */
 class HttpProbe(private val client: OkHttpClient) {
 
@@ -59,6 +60,18 @@ class HttpProbe(private val client: OkHttpClient) {
                     response.code == 206 -> {
                         val total = parseRangeTotal(response.header("Content-Range"))
                         if (total == null || total <= 0L) {
+                            val head = probeTotalWithHead(url, headers, registerCall, unregisterCall)
+                            if (head != null) {
+                                return ProbeResult(
+                                    finalUrl = head.finalUrl.ifBlank { finalUrl },
+                                    contentLength = head.total,
+                                    rangeSupported = true,
+                                    etag = etag ?: head.etag,
+                                    lastModified = lastModified ?: head.lastModified,
+                                    fileName = fileName ?: head.fileName,
+                                    mimeType = contentType ?: head.mimeType,
+                                )
+                            }
                             throw EngineException.Unexpected("Server returned 206 without a usable total size")
                         }
                         return ProbeResult(
@@ -102,6 +115,49 @@ class HttpProbe(private val client: OkHttpClient) {
         }
     }
 
+    private data class HeadTotal(
+        val finalUrl: String,
+        val total: Long,
+        val etag: String?,
+        val lastModified: String?,
+        val fileName: String?,
+        val mimeType: String?,
+    )
+
+    /** Only used for the unusual 206-without-total response. */
+    private fun probeTotalWithHead(
+        url: String,
+        headers: Map<String, String>,
+        registerCall: (Call) -> Unit,
+        unregisterCall: (Call) -> Unit,
+    ): HeadTotal? {
+        val call = client.newCall(buildRequest(url = url, headers = headers, method = "HEAD"))
+        registerCall(call)
+        try {
+            call.execute().use { response ->
+                if (response.code !in 200..299) return null
+                val total = response.header("Content-Length")?.toLongOrNull() ?: return null
+                if (total <= 0L) return null
+                val finalUrl = response.request.url.toString()
+                return HeadTotal(
+                    finalUrl = finalUrl,
+                    total = total,
+                    etag = response.header("ETag"),
+                    lastModified = response.header("Last-Modified"),
+                    fileName = FileNames.fromContentDisposition(response.header("Content-Disposition"))
+                        ?: FileNames.fromUrl(finalUrl),
+                    mimeType = response.header("Content-Type"),
+                )
+            }
+        } catch (failure: IOException) {
+            return null
+        } catch (failure: EngineException) {
+            return null
+        } finally {
+            unregisterCall(call)
+        }
+    }
+
     private fun parseRangeTotal(header: String?): Long? {
         if (header.isNullOrBlank()) return null
         val total = header.substringAfterLast('/', missingDelimiterValue = "").trim()
@@ -113,8 +169,9 @@ class HttpProbe(private val client: OkHttpClient) {
         url: String,
         headers: Map<String, String>,
         range: String? = null,
+        method: String = "GET",
     ): Request {
-        val builder = Request.Builder().url(url).get()
+        val builder = Request.Builder().url(url).method(method, null)
         headers.forEach { (name, value) ->
             if (!name.equals("Range", ignoreCase = true) &&
                 !name.equals("Accept-Encoding", ignoreCase = true)

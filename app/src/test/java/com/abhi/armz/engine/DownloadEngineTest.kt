@@ -1,7 +1,9 @@
 package com.abhi.armz.engine
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -71,6 +73,54 @@ class DownloadEngineTest {
     }
 
     @Test
+    fun `206 without a total falls back to one HEAD for the size`() = runBlocking {
+        origin.omitRangeTotal = true
+        origin.etag = "\"fallback-tag\""
+
+        val probe = HttpProbe(HttpClients.downloadClient()).probe(url())
+
+        assertEquals(1, origin.headCount.get())
+        assertEquals(1, origin.getCount.get())
+        assertEquals(origin.content.size.toLong(), probe.contentLength)
+        assertTrue(probe.rangeSupported)
+        assertEquals("\"fallback-tag\"", probe.etag)
+    }
+
+    @Test
+    fun `global segment budget caps simultaneous ranged requests`() = runBlocking {
+        val active = AtomicInteger()
+        val peak = AtomicInteger()
+        withTimeout(10_000) {
+            (1..64).map {
+                launch(Dispatchers.IO) {
+                    HttpClients.withSegmentSlot {
+                        val current = active.incrementAndGet()
+                        peak.updateAndGet { seen -> maxOf(seen, current) }
+                        delay(20)
+                        active.decrementAndGet()
+                    }
+                }
+            }.joinAll()
+        }
+
+        assertEquals(HttpClients.DefaultMaxSegments, peak.get())
+        assertEquals(0, active.get())
+    }
+
+    @Test
+    fun `a byte range ignored by the server is retried`() = runBlocking {
+        val content = sampleBytes(2 * 1024 * 1024)
+        origin.content = content
+        // GET 1 is the probe; GET 2 is the first segment.
+        origin.ignoreRangeAt = 2
+
+        val result = awaitTerminal(engine.start(request(segments = 2)))
+
+        assertEquals(DownloadStatus.Completed, result.status)
+        assertEquals(Sha256.of(content), Sha256.of(File(result.filePath)))
+    }
+
+    @Test
     fun `eight segments produce a byte-identical file`() = runBlocking {
         val content = sampleBytes(4 * 1024 * 1024)
         origin.content = content
@@ -95,6 +145,18 @@ class DownloadEngineTest {
         assertEquals(DownloadStatus.Completed, result.status)
         assertEquals(Sha256.of(content), Sha256.of(File(result.filePath)))
         assertTrue("expected at least 32 ranged requests", origin.rangeHeaders.size >= 32)
+    }
+
+    @Test
+    fun `forty-eight segments produce a byte-identical file`() = runBlocking {
+        val content = sampleBytes(4 * 1024 * 1024)
+        origin.content = content
+
+        val result = awaitTerminal(engine.start(request(segments = 48)))
+
+        assertEquals(DownloadStatus.Completed, result.status)
+        assertEquals(Sha256.of(content), Sha256.of(File(result.filePath)))
+        assertTrue("expected at least 48 ranged requests", origin.rangeHeaders.size >= 48)
     }
 
     @Test

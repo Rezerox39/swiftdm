@@ -97,7 +97,7 @@ export function SettingsScreen({ onClose }: SettingsScreenProps) {
             </div>
           </div>
           <p className="mt-2 px-1 text-[12px] leading-4 text-white/30">
-            New downloads use this value. 32 is the maximum and uses more memory and battery; files smaller than 1 MB still use one connection.
+            New downloads use this value. 48 is the maximum and uses more memory and battery; files smaller than 1 MB still use one connection.
           </p>
         </section>
 

@@ -65,7 +65,7 @@ data class DownloadRequest(
 
     companion object {
         const val MinSegments = 1
-        const val MaxSegments = 32
+        const val MaxSegments = 48
     }
 }
 

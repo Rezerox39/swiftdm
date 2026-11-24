@@ -4,7 +4,7 @@ import type { DownloadItem, ProbeResult, Settings } from '../bridge/types';
 export const defaultSettings: Settings = {
   wifiOnly: false,
   maxConcurrentDownloads: 3,
-  defaultSegments: 16,
+  defaultSegments: 24,
   speedLimitBytesPerSecond: null,
   keepDownloadsAlive: true,
   visualEffects: 'auto',

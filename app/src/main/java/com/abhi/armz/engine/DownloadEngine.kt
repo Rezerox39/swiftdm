@@ -385,42 +385,47 @@ internal class DownloadSession(
         val call = client.newCall(builder.build())
         activeCalls += call
         try {
-            call.execute().use { response ->
-                when {
-                    response.code == 206 -> Unit
-                    response.code == 200 ->
-                        throw EngineException.Unexpected("Server ignored the byte range request")
-                    response.code == 416 -> {
-                        if (segmentStore.cursorOf(index) >= segmentStore.endOf(index)) return
-                        throw EngineException.Http(416, url)
-                    }
-                    isTerminalStatus(response.code) ->
-                        throw EngineException.Http(response.code, url)
-                    isRetryableStatus(response.code) ->
-                        throw EngineException.RetryableHttp(response.code, url)
-                    else -> throw EngineException.Http(response.code, url)
-                }
-
-                val body = response.body ?: throw IOException("Response has no body")
-                body.source().use { source ->
-                    val buffer = ByteArray(BufferSize)
-                    while (true) {
-                        currentCoroutineContext().ensureActive()
-                        cursor = segmentStore.cursorOf(index)
-                        val currentEnd = segmentStore.endOf(index)
-                        if (cursor >= currentEnd) break
-                        val want = min(BufferSize.toLong(), currentEnd - cursor).toInt()
-                        val read = source.read(buffer, 0, want)
-                        if (read == -1) {
-                            if (segmentStore.cursorOf(index) < segmentStore.endOf(index)) {
-                                throw IOException("Connection closed before the range was complete")
+            HttpClients.withSegmentSlot {
+                call.execute().use { response ->
+                    when {
+                        response.code == 206 -> Unit
+                        // A CDN may ignore Range for one request. Retry instead of failing the file.
+                        response.code == 200 ->
+                            throw EngineException.RetryableHttp(200, url)
+                        response.code == 416 -> {
+                            if (segmentStore.cursorOf(index) >= segmentStore.endOf(index)) {
+                                return@withSegmentSlot
                             }
-                            break
+                            throw EngineException.Http(416, url)
                         }
-                        val sink = writer ?: throw IOException("Writer closed")
-                        sink.write(buffer, 0, read, cursor)
-                        segmentStore.advance(index, read)
-                        speedMeter.onProgress(segmentStore.downloadedTotal())
+                        isTerminalStatus(response.code) ->
+                            throw EngineException.Http(response.code, url)
+                        isRetryableStatus(response.code) ->
+                            throw EngineException.RetryableHttp(response.code, url)
+                        else -> throw EngineException.Http(response.code, url)
+                    }
+
+                    val body = response.body ?: throw IOException("Response has no body")
+                    body.source().use { source ->
+                        val buffer = ByteArray(BufferSize)
+                        while (true) {
+                            currentCoroutineContext().ensureActive()
+                            cursor = segmentStore.cursorOf(index)
+                            val currentEnd = segmentStore.endOf(index)
+                            if (cursor >= currentEnd) break
+                            val want = min(BufferSize.toLong(), currentEnd - cursor).toInt()
+                            val read = source.read(buffer, 0, want)
+                            if (read == -1) {
+                                if (segmentStore.cursorOf(index) < segmentStore.endOf(index)) {
+                                    throw IOException("Connection closed before the range was complete")
+                                }
+                                break
+                            }
+                            val sink = writer ?: throw IOException("Writer closed")
+                            sink.write(buffer, 0, read, cursor)
+                            segmentStore.advance(index, read)
+                            speedMeter.onProgress(segmentStore.downloadedTotal())
+                        }
                     }
                 }
             }

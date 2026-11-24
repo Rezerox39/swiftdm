@@ -107,8 +107,11 @@ jobs:
             - Reworked U1 WebView UI: AMOLED-black hierarchy, clearer download rows, filter
               counts, bulk controls, action sheets, toasts, a two-step Add Download flow, and
               settings that only expose working controls.
-            - Faster transfers: 256 KiB segment buffers, up to 32 connections (16 default),
-              a single ranged-GET probe that saves one round trip, and computed ETA.
+            - Faster transfers: 256 KiB segment buffers, up to 48 connections (24 default),
+              a shared connection budget across downloads, a one-round-trip ranged probe,
+              and computed ETA.
+            - Engine fixes: retry when a CDN ignores a byte range, and fall back to HEAD when
+              a 206 response omits the total size.
             - UI polish: 44-48 px touch targets, 8 px action gaps, >=12 px body text, six
               connection presets, and stabilized speed readouts and computed ETA.
             - Launcher, adaptive and monochrome icons show a white AMz wordmark on black.

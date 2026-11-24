@@ -24,7 +24,7 @@ object BridgeValidation {
             }
             segmentsElement.asInt
         }
-        if (segments != null && segments !in 1..32) return null
+        if (segments != null && segments !in 1..48) return null
 
         val headers = when {
             !objectValue.has("headers") || objectValue.get("headers").isJsonNull -> emptyMap()

@@ -14,7 +14,7 @@ import java.util.Locale
 import java.util.UUID
 
 /**
- * Real-network 8-vs-16-vs-32-segment benchmark. Disabled unless -Darmz.benchmarkUrl=<url> is passed,
+ * Real-network 8-vs-16-vs-24-vs-48-segment benchmark. Disabled unless -Darmz.benchmarkUrl=<url> is passed,
  * which is what the Engine benchmark workflow does.
  */
 class EngineBenchmarkTest {
@@ -32,7 +32,7 @@ class EngineBenchmarkTest {
         val directory = Files.createTempDirectory("armz-bench").toFile()
         try {
             val results = linkedMapOf<Int, Measurement>()
-            for (segments in listOf(8, 16, 32)) {
+            for (segments in listOf(8, 16, 24, 48)) {
                 results[segments] = measure(segments = segments, directory = directory)
             }
 
@@ -50,7 +50,8 @@ class EngineBenchmarkTest {
             }
             val baseline = results.getValue(8).mebibytesPerSecond
             println("ARMz_BENCH ratio16v8=${format(results.getValue(16).mebibytesPerSecond / baseline)}")
-            println("ARMz_BENCH ratio32v8=${format(results.getValue(32).mebibytesPerSecond / baseline)}")
+            println("ARMz_BENCH ratio24v8=${format(results.getValue(24).mebibytesPerSecond / baseline)}")
+            println("ARMz_BENCH ratio48v8=${format(results.getValue(48).mebibytesPerSecond / baseline)}")
             println("ARMz_BENCH sha256=${hashes.single()}")
         } finally {
             directory.deleteRecursively()

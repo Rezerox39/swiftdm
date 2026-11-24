@@ -43,7 +43,7 @@ data class BridgeSettingsEvent(
 data class BridgeSettings(
     val wifiOnly: Boolean = false,
     val maxConcurrentDownloads: Int = 3,
-    val defaultSegments: Int = 16,
+    val defaultSegments: Int = 24,
     val speedLimitBytesPerSecond: Long? = null,
     val keepDownloadsAlive: Boolean = true,
     val visualEffects: String = "auto",
